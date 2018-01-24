@@ -232,10 +232,10 @@ class AllInOneNeuralNetwork(object):
         for i in range(len(Xtest)):
             X_test[i] = Xtest[i]
         agModel.fit_generator(self.imdb_preprocessor.generator(batch_size=32),epochs = 10,callbacks = [LambdaUpdateCallBack()],steps_per_epoch=1000,validation_data=(X_test,y_test),verbose=True)
-        with open("logs.txt","a+") as log_file:
+        with open("logs/logs.txt","a+") as log_file:
             score = agModel.evaluate(X_test,y_test)
             log_file.write(str(score))
-        self.model.save_weights("large_model.h5")
-        agModel.save_weights("age_gender_model.h5")
+        self.model.save_weights("models/large_model.h5")
+        agModel.save_weights("models/age_gender_model.h5")
         # self.model.summary()
         
