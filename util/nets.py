@@ -5,11 +5,11 @@ from keras.layers import Input,Conv2D,MaxPooling2D,Dropout,Dense,Flatten,concate
 from keras.layers.normalization import  BatchNormalization
 from keras.models import Model
 from keras import backend as K
-from util.preprocess import getAgeGenderDataset
+
 import numpy as np
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
-from util.preprocess import load_dataset,getCurrentAgeGenderData,age_gender_dataset_generator
+from util.preprocess import ImdbWikiDatasetPreprocessor
 
 
 LAMDA = 0
@@ -60,6 +60,7 @@ class AllInOneNeuralNetwork(object):
             "identity": 0.7,
             "smile": 10
         }
+        self.imdb_preprocessor = ImdbWikiDatasetPreprocessor("/home/mtk/datasets/wiki","wiki")
         
     def build(self):
         input_layer = Input(shape=self.input_shape)
@@ -218,68 +219,19 @@ class AllInOneNeuralNetwork(object):
         optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         return model
     def train(self):
-        # age_gender_dataset = getAgeGenderDataset("/home/mtk/datasets/wiki","/home/mtk/datasets/israel/imdb_crop")
-        # X = age_gender_dataset["image"].values
-        # age = age_gender_dataset["age"].values
-        # gender = age_gender_dataset["gender"].values
+       
         agModel = self.get_age_gender_model()
         agModel.summary()
-        # self.model.summary()
-        # for i in range(len(self.model.layers)):
-        #     print i, self.model.layers[i].name
-        # gender = gender.astype(np.uint8)
-        # gender = np.eye(2)[gender]
-        # age = age.reshape(-1,1)
-        
-        # X_out = np.zeros((len(X),227,227,3))
-        # for i in range(X.shape[0]):
-        #     X_out[i] = X[i]
-        # # X = X.reshape(-1,227,227,3)`
-
-        # indexes = range(len(X_out))
-        # np.random.shuffle(indexes)
-        # print indexes
-        # X_train  = X_out[indexes[:int(len(indexes)*0.7)]]
-        # age_train = age[indexes[:int(len(indexes)*0.7)]]
-        # gender_train = gender[indexes[:int(len(indexes)*0.7)]]
-
-        # X_test  = X_out[indexes[int(len(indexes)*0.7):]]
-        # age_test = age[indexes[int(len(indexes)*0.7):]]
-        # gender_test = gender[indexes[int(len(indexes)*0.7):]]
-        # y_train = [age_train,gender_train]
-        # y_test = [age_test,gender_test]
-        dataset_dir = "/home/mtk/datasets/wiki"
-        dataset = load_dataset(dataset_dir,"wiki",["file_name","score","face_location","age","gender"])
-        dataset = dataset.loc[dataset["score"]!=float("-inf")]
-        dataset = dataset.reset_index(drop=True)
-        dataset = dataset.loc[dataset["gender"]!=float("nan")]
-        dataset = dataset.reset_index(drop=True)
-        print "len of dataset before",len(dataset)
-        # dataset = dataset[:15000]
-        print "len of dataset after",len(dataset)
-        dataset_matrix = dataset.as_matrix()
-        
-        msk = np.random.rand(len(dataset)) < 0.9
-        train_dataset = dataset_matrix[msk]
-        test_dataset = dataset_matrix[~msk]
-        # training_set = getCurrentAgeGenderData(train_dataset.as_matrix(),"/home/mtk/datasets/wiki")
-        print "loading test data"
-        testing_set = getCurrentAgeGenderData(test_dataset,dataset_dir)
-        print "loaded test data"
-        X_test = testing_set["image"].values
-        age_test = testing_set["age"].values
-        gender_test = testing_set["gender"].values
-        
-        gender_test = gender_test.astype(np.uint8)
-        gender_test = np.eye(2)[gender_test]
-        age_test = age_test.reshape(-1,1)
-        X_out = np.zeros((len(X_test),227,227,3))
-        for i in range(X_test.shape[0]):
-            X_out[i] = X_test[i]
-        X_test = X_out
+        Xtest = self.imdb_preprocessor.test_dataset["image"].as_matrix()
+        age_test = self.imdb_preprocessor.test_dataset["age"].as_matrix()
+        gender = self.imdb_preprocessor.test_dataset["gender"].as_matrix().astype(np.uint8)
+        gender_test = np.eye(2)[gender]
         y_test = [age_test,gender_test]
-        # agModel.summary()
-        agModel.fit_generator(age_gender_dataset_generator(train_dataset,dataset_dir,batch_size=32),epochs = 10,callbacks = [LambdaUpdateCallBack()],steps_per_epoch=1000,validation_data=(X_test,y_test),verbose=True)
+        
+        X_test = np.zeros((len(Xtest),self.input_shape[0],self.input_shape[1],self.input_shape[2]))
+        for i in range(len(Xtest)):
+            X_test[i] = Xtest[i]
+        agModel.fit_generator(self.imdb_preprocessor.generator(batch_size=32),epochs = 10,callbacks = [LambdaUpdateCallBack()],steps_per_epoch=1000,validation_data=(X_test,y_test),verbose=True)
         with open("logs.txt","a+") as log_file:
             score = agModel.evaluate(X_test,y_test)
             log_file.write(str(score))

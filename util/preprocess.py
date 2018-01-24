@@ -4,8 +4,8 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 import cv2
-import selectivesearch
-from util.process_imdb_wiki import load_dataset
+from sklearn.utils import shuffle
+
 IMG_SIZE = (227,227)
 
 
@@ -24,44 +24,6 @@ def draw_rects(image,rects,bbox):
             
     cv2.rectangle(image,(int(bbox[0]),int(bbox[1])),(int(bbox[2]),int(bbox[3])),(0,0,255),2)
     return image
-
-def search_face(img):
-    pass
-def getCurrentAgeGenderData(matrix,dataset_dir):
-    output = pd.DataFrame(columns=["image","age","gender"])
-    for index in range(len(matrix)):
-        if  matrix[index][1]==float("-inf") or matrix[index][1]==float("-inf"):
-            continue
-        img = cv2.imread(os.path.join(dataset_dir,matrix[index][0][0]))
-        if img is None:
-            continue    
-        face_location = matrix[index][2][0].astype(int) 
-        face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
-        face_image = cv2.resize(face_image,IMG_SIZE)
-        output.loc[-1] = [face_image, matrix[index][3], matrix[index][4]]  # adding a row
-        output.index = output.index + 1  # shifting index
-        output = output.sort_index()  
-    return output
-def age_gender_dataset_generator(dataset_matrix,dataset_dir,batch_size=32):
-    print dataset_matrix.shape
-    while True:
-        indexes = range(dataset_matrix.shape[0])
-        np.random.shuffle(indexes)
-        for i in range(0,len(indexes)-batch_size,batch_size):
-            current_indexes = indexes[i:i+batch_size]
-            currentDataframe = dataset_matrix[current_indexes]
-            curentDataset = getCurrentAgeGenderData(currentDataframe,dataset_dir)
-            X = curentDataset["image"].values
-            age = curentDataset["age"].values
-            gender = curentDataset["gender"].values
-            X_out = np.zeros((len(X),227,227,3))
-            for i in range(X.shape[0]):
-                X_out[i] = X[i]
-            gender = gender.astype(np.uint8)
-            gender = np.eye(2)[gender]
-            age = age.reshape(-1,1)
-            yield X_out,[age,gender]
-
 
 def rect_intersection(rect1,rect2):
     x_overlap = max(0, min(rect1[2], rect2[2]) - max(rect1[0], rect2[0]));
@@ -96,91 +58,107 @@ def bb_intersection_over_union(boxA, boxB):
     iou = intr / float(runion)
     return iou
 
-def getAgeGenderDatasetHelper(dataset_dir,dataset_type):
-    
-    dataset = load_dataset(dataset_dir,dataset_type,["file_name","score","face_location","age","gender"])
-    dataset = dataset.loc[dataset["score"]!=float("-inf")]
-    dataset = dataset.reset_index(drop=True)
-    dataset = dataset.loc[dataset["gender"]!=float("nan")]
-    dataset = dataset.reset_index(drop=True)
-    output = pd.DataFrame(columns=["image","age","gender"])
 
 
 
-    for index,row in dataset.iterrows():
-        img = cv2.imread(os.path.join(dataset_dir,row["file_name"][0]))
-        if img is None:
-            print row["file_name"]
-            continue
-        if row["score"]==float("-inf") or row["score"]==float("-inf"):
-            cv2.imshow("No face annotated",img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows() 
+
+
+class Preprocessor(object):
+    def __init__(self):
+        pass
+
+    def load_dataset(self):
+        raise Exception("Not implemented yet");
+    def train_model(self,model):
+        raise Exception("Not implemented yet");
+    def generator(self):
+        raise Exception("Not implemented yet");
+class ImdbWikiDatasetPreprocessor(Preprocessor):
+    def __init__(self,images_dir,dataset_type):
+        super(ImdbWikiDatasetPreprocessor,self).__init__()
+        self.dataset_type = dataset_type
+        self.images_dir = images_dir
+        self.dataset_loaded = False
+        self.train_dataset,self.test_dataset = self.load_dataset()
+
+    def get_meta(self,annotation_file_path):
+        meta = pd.read_pickle(annotation_file_path)
+        return meta
+    def load_dataset(self):
+        if self.images_dir is None:
+            raise Exception("Images dir is None")
+        elif not os.path.exists(self.images_dir):
+            raise Exception("images dir path "+self.images_dir+" does not exist")
+       
+        train_dataset = self.get_meta(os.path.join(self.images_dir,"train.pkl"))
+        test_dataset = self.get_meta(os.path.join(self.images_dir,"test.pkl"))
+
+        train_dataset = self.remove_defected_data(train_dataset)
+        test_dataset = self.remove_defected_data(test_dataset)
+        test_dataset = test_dataset[:1000]
+        test_dataset = self.load_images(test_dataset)
+        self.dataset_loaded = True
+        return train_dataset,test_dataset
+    def calc_age(self,taken, dob):
+        birth = datetime.fromordinal(max(int(dob) - 366, 1))
+        if birth.month < 7:
+            return taken - birth.year
         else:
-            face_location = row["face_location"][0].astype(int) 
-            face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
-            face_image = cv2.resize(face_image,IMG_SIZE)
-            output.loc[-1] = [face_image, row["age"], row["gender"]]  # adding a row
-            output.index = output.index + 1  # shifting index
-            output = output.sort_index()  
-        # if index>100:
-        #     break
-    return output
-
-def getAgeGenderDataset(wiki_dir,imdb_dir):
-    print "loading wiki"
-    wiki_dataset = getAgeGenderDatasetHelper(wiki_dir,"wiki")
-    # imdb_dataset = getAgeGenderDatasetHelper(imdb_dir,"imdb")
-    print len(wiki_dataset)
-    
-   
-    return wiki_dataset
-
-
-def selectiveSearchOpencv(img):
-    pass
-# def test_dataset(di)
-
-def test_age_of_wiki_dataset(directory):
-    dataset  = load_wiki_dataset(directory,["age","face_location","score"])
-    # print "dataset before",len(dataset)
-    dataset = dataset.loc[dataset["score"]!=float("-inf")]
-    dataset = dataset.reset_index(drop=True)
-    print "dataset 1 ",len(dataset)
-    dataset = dataset.loc[dataset["score"]!=float("inf")]
-    dataset = dataset.reset_index(drop=True)
-    print "dataset 2",len(dataset)
-    # print dataset
-    for i in range(10):
-        rand = np.random.randint(0,len(dataset))
-        img_file = dataset["file_name"][rand][0]
-        image = cv2.imread(os.path.join(directory,img_file))
-        print rand
-
-        img_lbl, regions = selectivesearch.selective_search(image, scale=500, sigma=0.9, min_size=50)
-        rects = []
-        for region in regions:
-            rects.append(region["rect"])
-        bbox = dataset["face_location"][rand]
-        draw_rects(image,np.array(rects),np.array(bbox[0]));
-        print"score", dataset["score"][rand],type(dataset["score"][rand])
-        cv2.imshow(str(dataset["age"][rand])+" years old " + str(dataset["score"][rand]),image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-def test_selective_search(img_file):
-    for i in range(10):
-        image = cv2.imread(img_file)
-
-        img_lbl, regions = selectivesearch.selective_search(image, scale=200, sigma=0.9, min_size=300*(i+1))
-        rects = []
-        for region in regions:
-            rects.append(region["rect"])
-        draw_rects(image,rects);
-
-
-        cv2.imshow("minsize - "+str(50*(i+1))+" total- "+str(len(regions)),image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-
-
+            return taken - birth.year - 1
+    def remove_defected_data(self,dataset):
+        dataset = dataset[np.isfinite(dataset['score'])]
+        dataset = dataset.reset_index(drop=True)
+        dataset = dataset[np.isfinite(dataset['gender'])]
+        dataset = dataset.reset_index(drop=True)
+        dataset = dataset[np.isfinite(dataset['age'])]
+        dataset = dataset.reset_index(drop=True)
+        dataset = dataset.loc[dataset["age"]>0]
+        dataset = dataset.reset_index(drop=True)
+        dataset = dataset.loc[dataset["age"]<150]
+        dataset = dataset.reset_index(drop=True)
+        
+        
+        return dataset
+    def load_images(self,dataset):
+        output = pd.DataFrame(columns=["image","age","gender"])
+        for index,row in dataset.iterrows():
+            img = cv2.imread(os.path.join(self.images_dir,row["file_name"][0]))
+            if img is None:
+                print row["file_name"]
+                continue
+            if row["score"]==float("-inf") or row["score"]==float("-inf"):
+                cv2.imshow("No face annotated",img)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows() 
+            else:
+                face_location = row["face_location"][0].astype(int) 
+                face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
+                face_image = cv2.resize(face_image,IMG_SIZE).astype("float32")/255
+                output.loc[-1] = [face_image, row["age"], row["gender"]]  # adding a row
+                output.index = output.index + 1  # shifting index
+                output = output.sort_index()  
+        output["gender"] = output["gender"].astype(np.uint8)
+        return output
+    def generator(self,batch_size=32):
+        while True:
+            self.train_dataset = self.train_dataset.sample(frac=1).reset_index(drop=True)
+            for i in range(0,len(self.train_dataset)-batch_size,batch_size):
+                current_dataset = self.train_dataset[i:i+batch_size]
+                current_images_dataset = self.load_images(current_dataset)
+                X = current_images_dataset["image"].as_matrix()
+                age = current_images_dataset["age"].as_matrix()
+                gender = current_images_dataset["gender"].as_matrix()
+                gender_out = np.eye(2)[gender]
+                X_out = np.zeros((len(X),IMG_SIZE[0],IMG_SIZE[1],3))
+                for i in range(len(X)):
+                    X_out[i] = X[i]
+                yield X_out,[age,gender_out]
+class CelebADatasetPreprocessor(Preprocessor):
+    def __init__(self):
+        pass
+class YaleDatasetPreprocessor(Preprocessor):
+    def __init__(self):
+        pass
+class AlfwDatasetPreprocessor(Preprocessor):
+    def __init__(self):
+        pass
