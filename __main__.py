@@ -16,6 +16,8 @@ def main():
     # seven emotion classifier[anger,fear,disgust,happy,sad,surprise,neutral]). Default is 'np'
     parser.add_argument("--images_path",default="",type=str)
     parser.add_argument("--dataset",default="",type=str)
+    parser.add_argument("--epochs",default=10,type=int)
+    parser.add_argument("--batch_size",default=32,type=int)
     args = parser.parse_args()
     if not os.path.exists(args.images_path):
         print "image path given does not exists"
@@ -26,7 +28,7 @@ def main():
     images_path = args.images_path
     dataset = args.dataset
     preprocessor = ImdbWikiDatasetPreprocessor(images_path,dataset)
-    net= AllInOneNeuralNetwork(INPUT_SIZE,preprocessor)
+    net= AllInOneNeuralNetwork(INPUT_SIZE,preprocessor,batch_size=args.batch_size,epochs=args.epochs)
     net.train()
 
 if __name__== "__main__":

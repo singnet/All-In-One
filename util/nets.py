@@ -45,7 +45,7 @@ class LambdaUpdateCallBack(keras.callbacks.Callback):
     
 
 class AllInOneNeuralNetwork(object):
-    def __init__(self,input_shape,preprocessor,learning_rate=1e-4):
+    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4):
         self.input_shape = input_shape
         self.is_built = False
         self.model = self.build()
@@ -61,6 +61,8 @@ class AllInOneNeuralNetwork(object):
             "smile": 10
         }
         self.imdb_preprocessor = preprocessor
+        self.epochs = epochs
+        self.batch_size = batch_size
         
     def build(self):
         input_layer = Input(shape=self.input_shape)
@@ -231,7 +233,7 @@ class AllInOneNeuralNetwork(object):
         X_test = np.zeros((len(Xtest),self.input_shape[0],self.input_shape[1],self.input_shape[2]))
         for i in range(len(Xtest)):
             X_test[i] = Xtest[i]
-        agModel.fit_generator(self.imdb_preprocessor.generator(batch_size=32),epochs = 10,callbacks = [LambdaUpdateCallBack()],steps_per_epoch=1000,validation_data=(X_test,y_test),verbose=True)
+        agModel.fit_generator(self.imdb_preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = [LambdaUpdateCallBack()],steps_per_epoch=1000,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = agModel.evaluate(X_test,y_test)
             log_file.write(str(score))
