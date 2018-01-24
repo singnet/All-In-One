@@ -45,7 +45,7 @@ class LambdaUpdateCallBack(keras.callbacks.Callback):
     
 
 class AllInOneNeuralNetwork(object):
-    def __init__(self,input_shape,learning_rate=1e-4):
+    def __init__(self,input_shape,preprocessor,learning_rate=1e-4):
         self.input_shape = input_shape
         self.is_built = False
         self.model = self.build()
@@ -60,7 +60,7 @@ class AllInOneNeuralNetwork(object):
             "identity": 0.7,
             "smile": 10
         }
-        self.imdb_preprocessor = ImdbWikiDatasetPreprocessor("/home/mtk/datasets/wiki","wiki")
+        self.imdb_preprocessor = preprocessor
         
     def build(self):
         input_layer = Input(shape=self.input_shape)
