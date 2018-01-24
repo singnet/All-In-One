@@ -1,6 +1,7 @@
 from util.preprocess import ImdbWikiDatasetPreprocessor
 from util.nets import AllInOneNeuralNetwork
 import argparse
+import os
 
 INPUT_SIZE = (227,227,3)
 
@@ -13,10 +14,15 @@ def main():
     parser = argparse.ArgumentParser()
     # --mtype is model type argument. it can be either 'np'(neutral vs positive emotion classifier) or 'ava'(All basic
     # seven emotion classifier[anger,fear,disgust,happy,sad,surprise,neutral]). Default is 'np'
-    parser.add_argument("--images_path")
-    parser.add_argument("--dataset")
+    parser.add_argument("--images_path",default="",type=str)
+    parser.add_argument("--dataset",default="",type=str)
     args = parser.parse_args()
-
+    if not os.path.exists(args.images_path):
+        print "image path given does not exists"
+        exit(0)
+    if not args.dataset in ["wiki","imdb"]:
+        print "currently implemented for only wiki and imdb datasets"
+        exit(0)
     images_path = args.images_path
     dataset = args.dataset
     preprocessor = ImdbWikiDatasetPreprocessor(images_path,dataset)
