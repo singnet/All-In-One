@@ -44,7 +44,7 @@ class LambdaUpdateCallBack(keras.callbacks.Callback):
         return
 class CustomModelCheckPoint(keras.callbacks.Callback):
     def __init__(self,**kargs):
-        callbacks.Callback.__init__(self,**kargs)
+        super(CustomModelCheckPoint,self).__init__(self,**kargs)
         self.last_loss = 1000000000
         self.last_accuracy = 0
         self.current_model_number = 0;
