@@ -92,9 +92,9 @@ class ImdbWikiDatasetPreprocessor(Preprocessor):
        
         train_dataset = self.get_meta(os.path.join(self.images_dir,"train.pkl"))
         test_dataset = self.get_meta(os.path.join(self.images_dir,"test.pkl"))
-
         train_dataset = self.remove_defected_data(train_dataset)
         test_dataset = self.remove_defected_data(test_dataset)
+        test_dataset = test_dataset[:100]
         test_dataset = self.load_images(test_dataset)
         self.dataset_loaded = True
         return train_dataset,test_dataset
@@ -146,9 +146,9 @@ class ImdbWikiDatasetPreprocessor(Preprocessor):
         while True:
             self.train_dataset = self.train_dataset.sample(frac=1).reset_index(drop=True)
             for i in range(0,len(self.train_dataset)-batch_size,batch_size):
-                current_dataset = self.train_dataset[i:i+batch_size]
+                current_dataset = self.train_dataset[i:i+batch_size].reset_index(drop=True)
                 X,age,gender = self.load_images(current_dataset)
-                gender_out = np.eye(gender)
+                gender_out = np.eye(2)[gender]
                 yield X,[age,gender_out]
 class CelebADatasetPreprocessor(Preprocessor):
     def __init__(self):
