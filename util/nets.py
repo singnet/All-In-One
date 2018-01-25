@@ -224,15 +224,10 @@ class AllInOneNeuralNetwork(object):
        
         agModel = self.get_age_gender_model()
         agModel.summary()
-        Xtest = self.imdb_preprocessor.test_dataset["image"].as_matrix()
-        age_test = self.imdb_preprocessor.test_dataset["age"].as_matrix()
-        gender = self.imdb_preprocessor.test_dataset["gender"].as_matrix().astype(np.uint8)
+        X_test, age_test,gender = self.imdb_preprocessor.test_dataset
         gender_test = np.eye(2)[gender]
         y_test = [age_test,gender_test]
         
-        X_test = np.zeros((len(Xtest),self.input_shape[0],self.input_shape[1],self.input_shape[2]))
-        for i in range(len(Xtest)):
-            X_test[i] = Xtest[i]
         agModel.fit_generator(self.imdb_preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = [LambdaUpdateCallBack()],steps_per_epoch=1000,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = agModel.evaluate(X_test,y_test)
