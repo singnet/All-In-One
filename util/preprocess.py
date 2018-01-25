@@ -94,7 +94,7 @@ class ImdbWikiDatasetPreprocessor(Preprocessor):
         test_dataset = self.get_meta(os.path.join(self.images_dir,"test.pkl"))
         train_dataset = self.remove_defected_data(train_dataset)
         test_dataset = self.remove_defected_data(test_dataset)
-        test_dataset = test_dataset[:100]
+        # test_dataset = test_dataset[:100]
         test_dataset = self.load_images(test_dataset)
         self.dataset_loaded = True
         return train_dataset,test_dataset
