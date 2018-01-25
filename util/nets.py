@@ -35,17 +35,18 @@ def age_loss(y_true,y_pred):
     loss1 = (1-LAMDA) * (1.0/2.0) * K.square(y_pred - y_true);
     loss2 = LAMDA *(1 - K.exp(-(K.square(y_pred - y_true)/(2* SIGMOID))))
     return loss1+loss2
+    # return (1.0/2.0) * K.square(y_pred - y_true)
 class LambdaUpdateCallBack(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs={}):
         global LAMDA
         if LAMDA<1:
-            LAMDA +=5e-5
+            LAMDA +=5e-6
         return
 
     
 
 class AllInOneNeuralNetwork(object):
-    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4):
+    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False):
         self.input_shape = input_shape
         self.is_built = False
         self.model = self.build()
@@ -63,7 +64,7 @@ class AllInOneNeuralNetwork(object):
         self.imdb_preprocessor = preprocessor
         self.epochs = epochs
         self.batch_size = batch_size
-        
+        self.resume = resume
     def build(self):
         input_layer = Input(shape=self.input_shape)
        
@@ -111,7 +112,7 @@ class AllInOneNeuralNetwork(object):
         age_estimation1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
         age_estimation2 = Dense(128,activation="relu")(age_estimation1)
         age_estimation3 = Dense(1,activation="linear")(age_estimation2)
-        age_estimation4 = RoundLayer(name="age_estimation")(age_estimation3)
+        age_estimation4 = RoundLayer(name="age_estimation",activation="relu")(age_estimation3)
         # gender probablity
 
         gender_probablity1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
@@ -203,7 +204,7 @@ class AllInOneNeuralNetwork(object):
         model = Model(inputs=input_layer,outputs=[age_layer,gender_layer])
 
         model.compile(loss = [age_loss,keras.losses.categorical_crossentropy],
-        loss_weights = [5,1],
+        loss_weights = [0.9,.1],
         
         optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         return model
@@ -221,9 +222,17 @@ class AllInOneNeuralNetwork(object):
         optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         return model
     def train(self):
-       
+        if self.resume:
+            import os
+            model_path = "models/large_model.h5"
+            if os.path.exists(model_path):
+                print "loading model from ",model_path
+                self.model.load_weights(model_path)
+            else:
+                print "Unable to load model from ",model_path," model path does not exist"
         agModel = self.get_age_gender_model()
         agModel.summary()
+        
         X_test, age_test,gender = self.imdb_preprocessor.test_dataset
         gender_test = np.eye(2)[gender]
         y_test = [age_test,gender_test]

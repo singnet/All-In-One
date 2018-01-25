@@ -19,6 +19,8 @@ def main():
     parser.add_argument("--epochs",default=10,type=int)
     parser.add_argument("--batch_size",default=32,type=int)
     parser.add_argument("--lr",default=1e-3,type=float)
+    parser.add_argument("--load_db",default=False,type=bool)
+    parser.add_argument("--resume",default = False,type=bool)
     args = parser.parse_args()
     if not os.path.exists(args.images_path):
         print "image path given does not exists"
@@ -28,8 +30,8 @@ def main():
         exit(0)
     images_path = args.images_path
     dataset = args.dataset
-    preprocessor = ImdbWikiDatasetPreprocessor(images_path,dataset)
-    net= AllInOneNeuralNetwork(INPUT_SIZE,preprocessor,batch_size=args.batch_size,epochs=args.epochs,learning_rate=args.lr)
+    preprocessor = ImdbWikiDatasetPreprocessor(images_path,dataset,args.load_db)
+    net= AllInOneNeuralNetwork(INPUT_SIZE,preprocessor,batch_size=args.batch_size,epochs=args.epochs,learning_rate=args.lr,load_db = args.load_db,resume=args.resume)
     net.train()
 
 if __name__== "__main__":
