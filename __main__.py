@@ -18,7 +18,7 @@ def main():
     parser.add_argument("--dataset",default="",type=str)
     parser.add_argument("--epochs",default=10,type=int)
     parser.add_argument("--batch_size",default=32,type=int)
-    parser.add_argument("--lr",default=1e-3,type=int)
+    parser.add_argument("--lr",default=1e-3,type=float)
     args = parser.parse_args()
     if not os.path.exists(args.images_path):
         print "image path given does not exists"
