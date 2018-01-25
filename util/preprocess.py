@@ -119,7 +119,10 @@ class ImdbWikiDatasetPreprocessor(Preprocessor):
         
         return dataset
     def load_images(self,dataset):
-        output = pd.DataFrame(columns=["image","age","gender"])
+        # output = pd.DataFrame(columns=["image","age","gender"])
+        output_images = np.zeros((len(dataset),227,227,3))
+        output_ages = np.zeros((len(dataset)))
+        output_genders = np.zeros((len(dataset)))
         for index,row in dataset.iterrows():
             img = cv2.imread(os.path.join(self.images_dir,row["file_name"][0]))
             if img is None:
@@ -133,25 +136,20 @@ class ImdbWikiDatasetPreprocessor(Preprocessor):
                 face_location = row["face_location"][0].astype(int) 
                 face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
                 face_image = cv2.resize(face_image,IMG_SIZE).astype("float32")/255
-                output.loc[-1] = [face_image, row["age"], row["gender"]]  # adding a row
-                output.index = output.index + 1  # shifting index
-                output = output.sort_index()  
-        output["gender"] = output["gender"].astype(np.uint8)
-        return output
+                output_images[index] = face_image
+                output_ages[index] = row["age"]
+                output_genders[index] = row["gender"]
+
+        output_genders = output_genders.astype(np.uint8)
+        return output_images,output_ages,output_genders
     def generator(self,batch_size=32):
         while True:
             self.train_dataset = self.train_dataset.sample(frac=1).reset_index(drop=True)
             for i in range(0,len(self.train_dataset)-batch_size,batch_size):
                 current_dataset = self.train_dataset[i:i+batch_size]
-                current_images_dataset = self.load_images(current_dataset)
-                X = current_images_dataset["image"].as_matrix()
-                age = current_images_dataset["age"].as_matrix()
-                gender = current_images_dataset["gender"].as_matrix()
-                gender_out = np.eye(2)[gender]
-                X_out = np.zeros((len(X),IMG_SIZE[0],IMG_SIZE[1],3))
-                for i in range(len(X)):
-                    X_out[i] = X[i]
-                yield X_out,[age,gender_out]
+                X,age,gender = self.load_images(current_dataset)
+                gender_out = np.eye(gender)
+                yield X,[age,gender_out]
 class CelebADatasetPreprocessor(Preprocessor):
     def __init__(self):
         pass
