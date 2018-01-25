@@ -155,7 +155,7 @@ class AllInOneNeuralNetwork(object):
         age_estimation1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
         age_estimation2 = Dense(128,activation="relu")(age_estimation1)
         age_estimation3 = Dense(1,activation="linear")(age_estimation2)
-        age_estimation4 = RoundLayer(name="age_estimation",activation="relu")(age_estimation3)
+        age_estimation4 = RoundLayer(name="age_estimation")(age_estimation3)
         # gender probablity
 
         gender_probablity1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
