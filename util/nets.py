@@ -89,7 +89,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
                 logfile.write(str(logs.get("age_estimation_loss"))+"\n")
                 logfile.write("TRAIN_GENDER_LOSS =")
                 logfile.write(str(logs.get("gender_probablity_loss"))+"\n")
-                logfile.write"---------------------------------------------------------\n")
+                logfile.write("---------------------------------------------------------\n")
 
                 logfile.write("TRAIN_Age_ACC  =")
                 logfile.write(str(logs.get("age_estimation_acc"))+"\n")
