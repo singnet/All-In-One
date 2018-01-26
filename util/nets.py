@@ -12,6 +12,8 @@ from sklearn.model_selection import train_test_split
 from util.preprocess import ImdbWikiDatasetPreprocessor
 from datetime import datetime
 import json
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
 
 LAMDA = 0
 SIGMOID = 3
@@ -80,21 +82,24 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
                 logfile.write(str(current_loss)+"\n")
                 logfile.write("VAL_LOSS =")
                 logfile.write(str(current_val_loss)+"\n")
-
+                logfile.write"---------------------------------------------------------\n")
                 logfile.write("TRAIN_Age_LOSS  =")
                 logfile.write(str(logs.get("age_estimation_loss"))+"\n")
                 logfile.write("TRAIN_GENDER_LOSS =")
                 logfile.write(str(logs.get("gender_probablity_loss"))+"\n")
+                logfile.write"---------------------------------------------------------\n")
 
                 logfile.write("TRAIN_Age_ACC  =")
                 logfile.write(str(logs.get("age_estimation_acc"))+"\n")
                 logfile.write("TRAIN_GENDER_ACC =")
                 logfile.write(str(logs.get("gender_probablity_acc"))+"\n")
+                logfile.write"---------------------------------------------------------\n")
 
                 logfile.write("VAL_Age_LOSS  =")
                 logfile.write(str(logs.get("val_age_estimation_loss"))+"\n")
                 logfile.write("VAL_GENDER_LOSS =")
                 logfile.write(str(logs.get("val_gender_probablity_loss"))+"\n")
+                logfile.write"---------------------------------------------------------\n")
 
                 logfile.write("VAL_Age_ACC  =")
                 logfile.write(str(logs.get("val_age_estimation_acc"))+"\n")
@@ -267,7 +272,7 @@ class AllInOneNeuralNetwork(object):
         model = Model(inputs=input_layer,outputs=[age_layer,gender_layer])
 
         model.compile(loss = [age_loss,keras.losses.categorical_crossentropy],
-        loss_weights = [0.9,.1],
+        loss_weights = [1,.1],
         
         optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         return model
@@ -293,6 +298,9 @@ class AllInOneNeuralNetwork(object):
                 self.model.load_weights(model_path)
             else:
                 print "Unable to load model from ",model_path," model path does not exist"
+        config = tf.ConfigProto()
+        config.gpu_options.per_process_gpu_memory_fraction = 0.3
+        set_session(tf.Session(config=config))
         agModel = self.get_age_gender_model()
         agModel.summary()
         ### Resume
