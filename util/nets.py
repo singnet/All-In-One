@@ -90,11 +90,12 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
     
 
 class AllInOneNeuralNetwork(object):
-    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False):
+    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100):
         self.input_shape = input_shape
         self.is_built = False
         self.model = self.build()
         self.learning_rate = learning_rate
+        self.steps_per_epoch = steps_per_epoch
         self.LOSS_WEIGHTS={
             "age": 0.5,
             "gender" : 0.3,
@@ -305,7 +306,7 @@ class AllInOneNeuralNetwork(object):
         gender_test = np.eye(2)[gender]
         y_test = [age_test,gender_test]
         
-        agModel.fit_generator(self.imdb_preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = [LambdaUpdateCallBack(),customCheckPoint],steps_per_epoch=1000,validation_data=(X_test,y_test),verbose=True)
+        agModel.fit_generator(self.imdb_preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = [LambdaUpdateCallBack(),customCheckPoint],steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = agModel.evaluate(X_test,y_test)
             log_file.write(str(score))
