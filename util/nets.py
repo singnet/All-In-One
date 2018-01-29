@@ -340,7 +340,7 @@ class AllInOneNeuralNetwork(object):
         REMAINING_EPOCHS = self.epochs
         if (self.resume):
             if os.path.exists("epoch_number.json"):
-                with open("epoch_number.json"," r") as json_file:
+                with open("epoch_number.json","r") as json_file:
                     try:
                         data = json.load(json_file)
                         customCheckPoint.epoch_number = data["epoch_number"]

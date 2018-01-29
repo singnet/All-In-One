@@ -168,8 +168,8 @@ class CelebADatasetPreprocessor(Preprocessor):
 
         test = pd.read_pickle(os.path.join(self.dataset_dir,"test.pkl")).reset_index(drop=True)
         validation = pd.read_pickle(os.path.join(self.dataset_dir,"validation.pkl")).reset_index(drop=True)
-        # test = test[:100].reset_index(drop=True)
-        # validation = validation[:100].reset_index(drop=True)
+        test = test[:1000].reset_index(drop=True)
+        validation = validation[:1000].reset_index(drop=True)
         test_images = self.load_images(test)
         validation_images = self.load_images(validation)
 
