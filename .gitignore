@@ -1,3 +1,5 @@
 *.pyc
 models/*
 logs/*
+log.txt
+logs.txt
