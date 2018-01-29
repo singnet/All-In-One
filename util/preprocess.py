@@ -163,11 +163,11 @@ class CelebADatasetPreprocessor(Preprocessor):
         df = pd.read_csv(annotation_file,sep= "\s+|\t+|\s+\t+|\t+\s+",names=headers,header=1)
         return df
     def load_train_test_dataset(self):
-        train = pd.read_pickle(os.path.join(self.dataset_dir,"train.pkl"))
+        train = pd.read_pickle(os.path.join(self.dataset_dir,"train.pkl")).reset_index(drop=True)
         train = self.convertToOneAndZero(train)
 
-        test = pd.read_pickle(os.path.join(self.dataset_dir,"test.pkl"))
-        validation = pd.read_pickle(os.path.join(self.dataset_dir,"validation.pkl"))
+        test = pd.read_pickle(os.path.join(self.dataset_dir,"test.pkl")).reset_index(drop=True)
+        validation = pd.read_pickle(os.path.join(self.dataset_dir,"validation.pkl")).reset_index(drop=True)
         # test = test[:100].reset_index(drop=True)
         # validation = validation[:100].reset_index(drop=True)
         test_images = self.load_images(test)
