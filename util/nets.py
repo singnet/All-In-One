@@ -74,7 +74,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
             self.model.save_weights("models/last_weight.h5")
             self.current_model_number+=1
             self.last_loss = current_loss
-            with open("log.txt","a+") as logfile:
+            with open("logs.txt","a+") as logfile:
                 logfile.write("________________________________________________________\n")
                 logfile.write("EPOCH    =")
                 logfile.write(str(epoch)+"\n")
@@ -113,7 +113,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
     
 
 class AllInOneNeuralNetwork(object):
-    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100):
+    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model"):
         self.input_shape = input_shape
         self.is_built = False
         self.model = self.build()
@@ -129,10 +129,12 @@ class AllInOneNeuralNetwork(object):
             "identity": 0.7,
             "smile": 10
         }
-        self.imdb_preprocessor = preprocessor
+        self.preprocessor = preprocessor
         self.epochs = epochs
         self.batch_size = batch_size
         self.resume = resume
+        self.large_model_name = large_model_name
+        self.small_model_name = small_model_name
     def build(self):
         input_layer = Input(shape=self.input_shape)
        
@@ -207,7 +209,7 @@ class AllInOneNeuralNetwork(object):
 
         # probablity face being smile face
         smile1 = Dense(512,activation="relu")(merge_1_dense)
-        smile2 = Dense(1,activation="softmax",name="smile")(smile1)
+        smile2 = Dense(2,activation="softmax",name="smile")(smile1)
 
         model = Model(inputs=input_layer,
                         outputs=[detection_probability2,key_point_visibility_2, key_points2,pose2,smile2,
@@ -289,6 +291,38 @@ class AllInOneNeuralNetwork(object):
         
         optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         return model
+    def train_on_imdbwiki_dataset(self,callbacks=[]):
+        agModel = self.get_age_gender_model()
+        agModel.summary()
+        X_test = self.preprocessor.test_dataset[0]
+        age_test = self.preprocessor.test_dataset[1]["age"].as_matrix()
+        gender = self.preprocessor.test_dataset[1]["gender"].as_matrix().astype(np.uint8)
+        gender_test = np.eye(2)[gender]
+        y_test = [age_test,gender_test]
+        
+        agModel.fit_generator(self.preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
+        with open("logs/logs.txt","a+") as log_file:
+            score = agModel.evaluate(X_test,y_test)
+            log_file.write(str(score))
+        self.model.save_weights("models/"+self.large_model_name+".h5")
+        agModel.save_weights("models/"+self.small_model_name+".h5")
+        
+    def train_on_celeba_dataset(self,callbacks=[]):
+        smileModel = self.get_smile_model()
+        smileModel.summary()
+        
+        X_test = self.preprocessor.test_dataset[0]
+        test_dataset = self.preprocessor.convertToOneAndZero(self.preprocessor.test_dataset[1])
+        smiling = test_dataset["Smiling"].as_matrix().astype(np.uint8)
+        y_test = np.eye(2)[smiling]
+        
+        smileModel.fit_generator(self.preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
+        with open("logs/logs.txt","a+") as log_file:
+            score = smileModel.evaluate(X_test,y_test)
+            log_file.write(str(score))
+        self.model.save_weights("models/"+self.large_model_name+".h5")
+        agModel.save_weights("models/"+self.small_model_name+".h5")
+
     def train(self):
         if self.resume:
             import os
@@ -298,11 +332,9 @@ class AllInOneNeuralNetwork(object):
                 self.model.load_weights(model_path)
             else:
                 print "Unable to load model from ",model_path," model path does not exist"
-        config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.3
-        set_session(tf.Session(config=config))
-        agModel = self.get_age_gender_model()
-        agModel.summary()
+        # config = tf.ConfigProto()
+        # config.gpu_options.per_process_gpu_memory_fraction = 0.3
+        # set_session(tf.Session(config=config))
         ### Resume
         customCheckPoint = CustomModelCheckPoint()
         REMAINING_EPOCHS = self.epochs
@@ -326,17 +358,10 @@ class AllInOneNeuralNetwork(object):
         with open("log.txt","a+") as logfile:
             str_date = datetime.now().strftime("%d, %b, %Y %H:%M:%S")
             logfile.write("Starting to train model\n")
+            logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
             logfile.write(str_date+"\n")
-        ### Resume end
-        X_test, age_test,gender = self.imdb_preprocessor.test_dataset
-        gender_test = np.eye(2)[gender]
-        y_test = [age_test,gender_test]
-        
-        agModel.fit_generator(self.imdb_preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = [LambdaUpdateCallBack(),customCheckPoint],steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
-        with open("logs/logs.txt","a+") as log_file:
-            score = agModel.evaluate(X_test,y_test)
-            log_file.write(str(score))
-        self.model.save_weights("models/large_model.h5")
-        agModel.save_weights("models/age_gender_model.h5")
-        # self.model.summary()
+        if self.preprocessor.dataset_type=="wiki" or self.preprocessor.dataset_type=="imdb":
+            self.train_on_imdbwiki_dataset([LambdaUpdateCallBack(),customCheckPoint])
+        elif self.preprocessor.dataset_type == "celeba":
+            self.train_on_celeba_dataset([customCheckPoint])
         
