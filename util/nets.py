@@ -332,15 +332,15 @@ class AllInOneNeuralNetwork(object):
                 self.model.load_weights(model_path)
             else:
                 print "Unable to load model from ",model_path," model path does not exist"
-        config = tf.ConfigProto()
-        config.gpu_options.per_process_gpu_memory_fraction = 0.7
-        set_session(tf.Session(config=config))
+        # config = tf.ConfigProto()
+        # config.gpu_options.per_process_gpu_memory_fraction = 0.7
+        # set_session(tf.Session(config=config))
         ### Resume
         customCheckPoint = CustomModelCheckPoint()
         REMAINING_EPOCHS = self.epochs
         if (self.resume):
             if os.path.exists("epoch_number.json"):
-                with open("epoch_number.json","r") as json_file:
+                with open("epoch_number.json"," r") as json_file:
                     try:
                         data = json.load(json_file)
                         customCheckPoint.epoch_number = data["epoch_number"]
