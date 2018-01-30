@@ -24,6 +24,7 @@ def main():
     parser.add_argument("--steps",default = 100,type=int)
     parser.add_argument("--ol",default = "large_model",type=str)
     parser.add_argument("--os",default = "",type=str)
+    parser.add_argument("--load_model",default=None,type=str)
 
     args = parser.parse_args()
     if not os.path.exists(args.images_path):

@@ -75,7 +75,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
             self.model.save_weights("models/"+current_weights_name);
             self.model.save_weights("models/last_weight.h5")
             self.current_model_number+=1
-            self.last_loss = current_loss
+            self.last_loss = current_val_loss
             with open("logs.txt","a+") as logfile:
                 logfile.write("________________________________________________________\n")
                 logfile.write("EPOCH    =")
@@ -276,7 +276,7 @@ class AllInOneNeuralNetwork(object):
         model = Model(inputs=input_layer,outputs=[age_layer,gender_layer])
 
         model.compile(loss = [age_loss,keras.losses.categorical_crossentropy],
-        loss_weights = [1,.1],
+        loss_weights = [10,1],
         
         optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         return model
