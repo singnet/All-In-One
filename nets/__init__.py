@@ -1,0 +1,2 @@
+class AllVsAllNetwork(object):
+    pass

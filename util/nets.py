@@ -113,10 +113,9 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
     
 
 class AllInOneNeuralNetwork(object):
-    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model"):
+    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model",load_model=None):
         self.input_shape = input_shape
         self.is_built = False
-        self.model = self.build()
         self.learning_rate = learning_rate
         self.steps_per_epoch = steps_per_epoch
         self.LOSS_WEIGHTS={
@@ -135,6 +134,9 @@ class AllInOneNeuralNetwork(object):
         self.resume = resume
         self.large_model_name = large_model_name
         self.small_model_name = small_model_name
+        self.model = self.build()
+        if(load_model!=None and os.path.exist(load_model)):
+            print("Loading model weights from",load_model)
     def build(self):
         input_layer = Input(shape=self.input_shape)
        

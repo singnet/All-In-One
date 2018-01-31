@@ -52,7 +52,7 @@ def main():
     else:
         print "Unable to recognize the dataset type given",dataset
         exit(0)
-    net= AllInOneNeuralNetwork(INPUT_SIZE,preprocessor,batch_size=args.batch_size,epochs=args.epochs,learning_rate=args.lr,load_db = args.load_db,resume=args.resume,steps_per_epoch=args.steps,large_model_name=args.ol,small_model_name=small_model)
+    net= AllInOneNeuralNetwork(INPUT_SIZE,preprocessor,batch_size=args.batch_size,epochs=args.epochs,learning_rate=args.lr,load_db = args.load_db,resume=args.resume,steps_per_epoch=args.steps,large_model_name=args.ol,small_model_name=small_model,load_model=args.load_model)
     net.train()
 
 if __name__== "__main__":

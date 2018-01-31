@@ -68,7 +68,6 @@ def bb_intersection_over_union(boxA, boxB):
 class Preprocessor(object):
     def __init__(self):
         pass
-
     def load_dataset(self):
         raise Exception("Not implemented yet");
     def train_model(self,model):
