@@ -113,7 +113,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
     
 
 class AllInOneNeuralNetwork(object):
-    def __init__(self,input_shape,preprocessor,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model",load_model=None):
+    def __init__(self,input_shape,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model",load_model=None):
         self.input_shape = input_shape
         self.is_built = False
         self.learning_rate = learning_rate
@@ -128,7 +128,6 @@ class AllInOneNeuralNetwork(object):
             "identity": 0.7,
             "smile": 10
         }
-        self.preprocessor = preprocessor
         self.epochs = epochs
         self.batch_size = batch_size
         self.resume = resume
@@ -294,20 +293,21 @@ class AllInOneNeuralNetwork(object):
         optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         return model
     def train_on_imdbwiki_dataset(self,callbacks=[]):
-        agModel = self.get_age_gender_model()
-        agModel.summary()
-        X_test = self.preprocessor.test_dataset[0]
-        age_test = self.preprocessor.test_dataset[1]["age"].as_matrix()
-        gender = self.preprocessor.test_dataset[1]["gender"].as_matrix().astype(np.uint8)
-        gender_test = np.eye(2)[gender]
-        y_test = [age_test,gender_test]
+        # agModel = self.get_age_gender_model()
+        # agModel.summary()
+        # X_test = self.preprocessor.test_dataset[0]
+        # age_test = self.preprocessor.test_dataset[1]["age"].as_matrix()
+        # gender = self.preprocessor.test_dataset[1]["gender"].as_matrix().astype(np.uint8)
+        # gender_test = np.eye(2)[gender]
+        # y_test = [age_test,gender_test]
         
-        agModel.fit_generator(self.preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
-        with open("logs/logs.txt","a+") as log_file:
-            score = agModel.evaluate(X_test,y_test)
-            log_file.write(str(score))
-        self.model.save_weights("models/"+self.large_model_name+".h5")
-        agModel.save_weights("models/"+self.small_model_name+".h5")
+        # agModel.fit_generator(self.preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
+        # with open("logs/logs.txt","a+") as log_file:
+        #     score = agModel.evaluate(X_test,y_test)
+        #     log_file.write(str(score))
+        # self.model.save_weights("models/"+self.large_model_name+".h5")
+        # agModel.save_weights("models/"+self.small_model_name+".h5")
+        pass
         
     def train_on_celeba_dataset(self,callbacks=[]):
         smileModel = self.get_smile_model()

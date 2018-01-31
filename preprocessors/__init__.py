@@ -17,24 +17,27 @@ class AbastractPreprocessor(object):
         String name of dataset type. for more information please vist doc string of util.DatasetType class
     split: bool
         Split and save dataset inside all.pkl into train.pkl,test.pkl and validation.pkl
+    face_image_shape : tuple
+        Shape of face image to generate
     dataset_dir : str
         Absolute or relative path to the dataset folder. This class assumes the following file structure,
-            dataset_dir/
-                |____ train.pkl
-                |____ test.pkl
-                |____ validation.pkl
-                |____ all.pkl 
-                |____ img1.png 
-                |____ img2.png
+            ├──dataset_dir/
+            ├─────── train.pkl
+            ├─────── test.pkl
+            ├─────── validation.pkl
+            ├─────── all.pkl 
+            ├─────── img1.png 
+            └─────── img2.png
                        ...
                        ...
     """
 
     
-    def __init__(self,dataset_type,dataset_dir,split=False):
+    def __init__(self,dataset_type,dataset_dir,split=False,face_image_shape=(227,227,3)):
         self.dataset_type = DatasetType(dataset_type)
         self.dataset_dir = dataset_dir
         self.dataset_loaded = False
+        self.face_image_shape = face_image_shape
         if(split):
             self.split_train_test_validation()
 
@@ -60,7 +63,7 @@ class AbastractPreprocessor(object):
     """
 
     @abc.abstractmethod
-    def load_images(self,dataset):
+    def load_faces(self,dataset):
         pass
 
     """ Loads datasets from files inside directory dataset_dir.
@@ -90,8 +93,8 @@ class AbastractPreprocessor(object):
         self.test_dataset = self.fix_labeling_issue(test_dataset)
         self.validation_dataset = self.fix_labeling_issue(validation_dataset)
 
-        self.test_images = self.load_images(self.test_dataset)
-        self.validation_images = self.load_images(self.validation_dataset)
+        self.test_images = self.load_faces(self.test_dataset)
+        self.validation_images = self.load_faces(self.validation_dataset)
         self.dataset_loaded = True
     
     """ Loads dataset inside given pickle file.
@@ -114,8 +117,10 @@ class AbastractPreprocessor(object):
     
 
     """Fixes labeling issues such as missing images, missing label, incorrect labeling
-    specified by the dataset documnet
-    
+    specified by the dataset document. This method also make labeling agree between 
+    all dataset. e.g some dataset use for negetive attributes -1  while others use 0. 
+    This method converts all -1 to 0. In this project 1 represents presence of(positive) attribute,
+    and 0 absence of(negetive) attributes. The method should not modify the dataset passed as argument.
     Parameters
     ----------
     dataset : pandas.core.frame.DataFrame
@@ -131,7 +136,7 @@ class AbastractPreprocessor(object):
 
     """Splits dataset into train, test and validation. test and validation size are equal
     
-    Parameters
+    Parameters[summary]
     ----------
     dataset : pandas.core.frame.DataFrame
         Dataset to be splitted
@@ -163,5 +168,11 @@ class AbastractPreprocessor(object):
         return len(train_dataset),len(test_dataset),len(validation_dataset)
     @abc.abstractmethod
     def generator(self,batch_size=32):
+        pass
+    """
+    """
+
+    @abc.abstractmethod
+    def to_common_datasetform(self,dataset):
         pass
     
