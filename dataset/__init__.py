@@ -3,6 +3,8 @@ from abc import abstractmethod
 import os
 from loggers import Log
 import numpy as np
+import pandas as pd
+
 class Dataset(object):
     __metaclass__ = ABCMeta
     """Base class for all classes that abstract the datasets. 
@@ -104,13 +106,13 @@ class Dataset(object):
     """
 
     def contain_dataset_files(self):
-        if not os.path.exist(os.path.join(self.dataset_dir,"all.pkl")):
+        if not os.path.exists(os.path.join(self.dataset_dir,"all.pkl")):
             print "Failed to met convention","all.pkl is not inside:"+self.dataset_dir
             return False
-        elif not os.path.exist(os.path.join(self.dataset_dir,"train.pkl")):
+        elif not os.path.exists(os.path.join(self.dataset_dir,"train.pkl")):
             print "Failed to met convention","train.pkl is not inside:"+self.dataset_dir
             return False
-        elif not os.path.exist(os.path.join(self.dataset_dir,"test.pkl")):
+        elif not os.path.exists(os.path.join(self.dataset_dir,"test.pkl")):
             print "Failed to met convention","test.pkl is not inside:"+self.dataset_dir
             return False
         return True;
@@ -128,6 +130,6 @@ class Dataset(object):
         test = test_val[test_mask]
         validation = test_val[~test_mask]
         return train,test,validation
-    @abc.abstractmethod
+    @abstractmethod
     def fix_labeling_issue(self,dataset):
         pass

@@ -57,7 +57,7 @@ def main():
     # net= AllInOneNeuralNetwork(INPUT_SIZE,preprocessor,batch_size=args.batch_size,epochs=args.epochs,learning_rate=args.lr,load_db = args.load_db,resume=args.resume,steps_per_epoch=args.steps,large_model_name=args.ol,small_model_name=small_model,load_model=args.load_model)
     # net.train()
 
-    celebADataset = CelebAAlignedDataset("/home/mtk/datasets/img_align_celeba")
+    celebADataset = CelebAAlignedDataset("/home/mtk/datasets/img_align_celeba/img_align_celeba")
     celebADataset.load_dataset()
     net = AllInOneNetwork((227,227,3),celebADataset)
     net.train()

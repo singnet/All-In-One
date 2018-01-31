@@ -1,48 +1,6 @@
 from __future__ import print_function
 from inspect import currentframe, getframeinfo
 
-class Log(object):
-    def DEBUG(message):
-        print(message)
-        
-    def WARNING(message):
-        cf = currentframe()
-        line_number = cf.f_back.f_lineno
-        file_name = cf.f_back.filename
-        if file_name!=None and line_number!=None:
-            print_colored(message+", at "+ file_name+ " line-number:"+ line_number,bg=color.bg.yellow)
-        elif file_name!=None:
-            print_colored(message+", at "+ file_name,bg=color.bg.yellow)
-        else:
-            print_colored(message,bg=color.bg.yellow)
-    def ERROR(message):
-        cf = currentframe()
-        line_number = cf.f_back.f_lineno
-        file_name = cf.f_back.filename
-        if file_name!=None and line_number!=None:
-            print_colored(message+", at "+ file_name+ " line-number:"+ line_number,bg=color.bg.red)
-        elif file_name!=None:
-            print_colored(message+", at "+ file_name,bg=color.bg.red)
-        else:
-            print_colored(message,bg=color.bg.red)
-    def LOG(message,file=None):
-        if type(out_file) == file:
-            out_file.write(message)
-            out_file.write("\n")
-        elif type(out_file) == str:
-            with open(out_file,"a+") as ofile:
-                ofile.write(message)
-                ofile.write("\n")
-        else:
-            frameinfo = getframeinfo(currentframe())
-            Log.WARNING("Out file should be either str or file object")
-    def print_colored(message,fg=color.fg.black,bg=color.bg.white,style="6"):
-        format = ';'.join([str(style), str(fg), str(bg)])
-        s1 = '\x1b[%sm %s \x1b[0m' % (format, message)
-        print(s1)
-
-
-
 class colors:
     '''Colors class:
     reset all colors with colors.reset
@@ -88,3 +46,57 @@ class colors:
         cyan='46'
         lightgrey='47',
         white = 50
+
+class Log(object):
+    DEBUG_OUT = False
+    WARINING_OUT = False
+    ERROR_OUT = True
+    @staticmethod
+    def DEBUG(message):
+        if DEBUG_OUT:
+            print(message)
+    @staticmethod    
+    def WARNING(message):
+        if WARINING_OUT:
+            cf = currentframe()
+            line_number = cf.f_back.f_lineno
+
+            file_name = cf.f_back.f_globals["__name__"]+".py"
+
+            if file_name!=None and line_number!=None:
+                Log.print_colored(message+", at "+ file_name+ " line-number:"+ str(line_number),bg=colors.bg.orange)
+            elif file_name!=None:
+                Log.print_colored(message+", at "+ file_name,bg=color.bg.yellow)
+            else:
+                Log.print_colored(message,bg=color.bg.yellow)
+    @staticmethod
+    def ERROR(message):
+        if ERROR_OUT:
+            cf = currentframe()
+            line_number = cf.f_back.f_lineno
+            file_name = cf.f_back.filename
+            if file_name!=None and line_number!=None:
+                Log.print_colored(message+", at "+ file_name+ " line-number:"+ str(line_number),bg=color.bg.red)
+            elif file_name!=None:
+                Log.print_colored(message+", at "+ file_name,bg=color.bg.red)
+            else:
+                Log.print_colored(message,bg=color.bg.red)
+    @staticmethod
+    def LOG(message,file=None):
+        if type(out_file) == file:
+            out_file.write(message)
+            out_file.write("\n")
+        elif type(out_file) == str:
+            with open(out_file,"a+") as ofile:
+                ofile.write(message)
+                ofile.write("\n")
+        else:
+            frameinfo = getframeinfo(currentframe())
+            Log.WARNING("Out file should be either str or file object")
+    @staticmethod
+    def print_colored(message,fg=colors.fg.black,bg=colors.bg.white,style="6"):
+        format = ';'.join([str(style), str(fg), str(bg)])
+        s1 = '\x1b[%sm %s \x1b[0m' % (format, message)
+        print(s1)
+
+

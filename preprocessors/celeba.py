@@ -17,6 +17,7 @@ class CelebAPreprocessor(AbastractPreprocessor):
         self.labels = labels
     
     def load_faces(self,dataset):
+        dataset = dataset.iloc[:1000]
         if self.aligned:
             output_images = np.zeros((len(dataset),self.face_image_shape[0],self.face_image_shape[1],self.face_image_shape[2]))
             for index,row in dataset.iterrows():

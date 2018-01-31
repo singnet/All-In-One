@@ -1,7 +1,117 @@
-import os
+
 import keras
-from keras.layers import Conv2D,Dense,MaxPool2D,Flatten
+
+from keras.layers import Input,Conv2D,MaxPooling2D,Dropout,Dense,Flatten,concatenate,Layer
+from keras.layers.normalization import  BatchNormalization
+from keras.models import Model
+from keras import backend as K
+
+import numpy as np
+from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
+from util.preprocess import ImdbWikiDatasetPreprocessor
+from datetime import datetime
+import json
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
 from dataset.celeba import CelebAAlignedDataset
+
+LAMDA = 0
+SIGMOID = 3
+
+class RoundLayer(Layer):
+    def __init__(self, **kwargs):
+        super(RoundLayer, self).__init__(**kwargs)
+
+    def get_output(self, train=False):
+        X = self.get_input(train)
+        return K.round(X)
+
+    def get_config(self):
+        config = {"name": self.__class__.__name__}
+        base_config = super(Round, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+
+
+
+def age_loss(y_true,y_pred):
+    global LAMDA,SIGMOID
+    loss1 = (1-LAMDA) * (1.0/2.0) * K.square(y_pred - y_true);
+    loss2 = LAMDA *(1 - K.exp(-(K.square(y_pred - y_true)/(2* SIGMOID))))
+    return loss1+loss2
+    # return (1.0/2.0) * K.square(y_pred - y_true)
+class LambdaUpdateCallBack(keras.callbacks.Callback):
+    def on_batch_end(self, batch, logs={}):
+        global LAMDA
+        if LAMDA<1:
+            LAMDA +=5e-6
+        return
+class CustomModelCheckPoint(keras.callbacks.Callback):
+    def __init__(self,**kargs):
+        super(CustomModelCheckPoint,self).__init__(**kargs)
+        self.last_loss = 1000000000
+        self.last_accuracy = 0
+        self.current_model_number = 0;
+        self.epoch_number = 0
+    # def on_train_begin(self,epoch, logs={}):
+    #     return
+ 
+    # def on_train_end(self, logs={}):
+    #     return
+ 
+    def on_epoch_begin(self,epoch, logs={}):
+        return
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.epoch_number+=1
+        current_val_loss = logs.get("val_loss")
+        current_loss = logs.get("loss")
+       
+
+        if (self.last_loss-current_loss) > 0.01:
+            current_weights_name = "weights"+str(self.current_model_number)+".h5"
+            print("loss improved from "+str(self.last_loss)+" to "+str(current_loss)+", Saving model to "+current_weights_name)
+            self.model.save_weights("models/"+current_weights_name);
+            self.model.save_weights("models/last_weight.h5")
+            self.current_model_number+=1
+            self.last_loss = current_val_loss
+            with open("logs.txt","a+") as logfile:
+                logfile.write("________________________________________________________\n")
+                logfile.write("EPOCH    =")
+                logfile.write(str(epoch)+"\n")
+                logfile.write("TRAIN_LOSS =")
+                logfile.write(str(current_loss)+"\n")
+                logfile.write("VAL_LOSS =")
+                logfile.write(str(current_val_loss)+"\n")
+                logfile.write("---------------------------------------------------------\n")
+                logfile.write("TRAIN_Age_LOSS  =")
+                logfile.write(str(logs.get("age_estimation_loss"))+"\n")
+                logfile.write("TRAIN_GENDER_LOSS =")
+                logfile.write(str(logs.get("gender_probablity_loss"))+"\n")
+                logfile.write("---------------------------------------------------------\n")
+
+                logfile.write("TRAIN_Age_ACC  =")
+                logfile.write(str(logs.get("age_estimation_acc"))+"\n")
+                logfile.write("TRAIN_GENDER_ACC =")
+                logfile.write(str(logs.get("gender_probablity_acc"))+"\n")
+                logfile.write("---------------------------------------------------------\n")
+
+                logfile.write("VAL_Age_LOSS  =")
+                logfile.write(str(logs.get("val_age_estimation_loss"))+"\n")
+                logfile.write("VAL_GENDER_LOSS =")
+                logfile.write(str(logs.get("val_gender_probablity_loss"))+"\n")
+                logfile.write("---------------------------------------------------------\n")
+
+                logfile.write("VAL_Age_ACC  =")
+                logfile.write(str(logs.get("val_age_estimation_acc"))+"\n")
+                logfile.write("VAL_GENDER_ACC =")
+                logfile.write(str(logs.get("val_gender_probablity_acc"))+"\n")
+
+                logfile.write("********************************************************\n")
+            with open("epoch_number.json","w+") as json_file:
+                data = {"epoch_number":self.epoch_number}
+                json.dump(data,json_file,indent=4)
+
 
 class AllInOneNetwork(object):
     def __init__(self,input_shape,dataset,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model",load_model=None):
@@ -196,7 +306,7 @@ class AllInOneNetwork(object):
             smiling = self.dataset.test_dataset["Smiling"].as_matrix().astype(np.uint8)
             y_test = np.eye(2)[smiling]
             
-            smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
+            smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = None,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
             with open("logs/logs.txt","a+") as log_file:
                 score = smileModel.evaluate(X_test,y_test)
                 log_file.write(str(score))

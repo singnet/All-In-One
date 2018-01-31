@@ -28,21 +28,25 @@ class CelebAAlignedDataset(Dataset):
         self.labels = labels
         self.detector = dlib.get_frontal_face_detector()
     def load_dataset(self):
-        if set(self.labels).issubset(["Smiling","Mal"]):
-            if self.contain_dataset_files():
-                self.train_dataset = self.get_meta(os.path.join(self.dataset_dir,"train.pkl"))
-                self.test_dataset = self.get_meta(os.path.join(self.dataset_dir,"test.pkl"))
-                if os.path.exists(os.path.join(self.dataset_dir,"validation.pkl")):
-                    self.validation_dataset = self.get_meta(os.path.join(self.dataset_dir,"validation.pkl"))
-                else:
-                    self.validation_dataset = None
-                    frameinfo = getframeinfo(currentframe())
-                    Log.WARNING("Unable to find validation dataset",file_name=__name__,line_number=frameinfo.lineno)
+        if set(self.labels).issubset(["Smiling","Male"]):
+            if not self.contain_dataset_files():
+                self.meet_convention()
+            self.train_dataset = self.get_meta(os.path.join(self.dataset_dir,"train.pkl"))
+            self.test_dataset = self.get_meta(os.path.join(self.dataset_dir,"test.pkl"))
+            if os.path.exists(os.path.join(self.dataset_dir,"validation.pkl")):
+                self.validation_dataset = self.get_meta(os.path.join(self.dataset_dir,"validation.pkl"))
+            else:
+                self.validation_dataset = None
+                frameinfo = getframeinfo(currentframe())
+                Log.WARNING("Unable to find validation dataset",file_name=__name__,line_number=frameinfo.lineno)
+        
             self.train_dataset = self.fix_labeling_issue(self.train_dataset)
             self.test_dataset = self.fix_labeling_issue(self.test_dataset)
             self.validation_dataset = self.fix_labeling_issue(self.validation_dataset)
+            self.test_dataset = self.test_dataset[:1000]
+            self.validation_dataset = self.validation_dataset[:1000]
             self.test_dataset_images = self.load_images(self.test_dataset)
-            self.validation_dataset_images = self.load_dataset(self.validation_dataset)
+            self.validation_dataset_images = self.load_images(self.validation_dataset)
             self.dataset_loaded = True
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
@@ -73,7 +77,7 @@ class CelebAAlignedDataset(Dataset):
     def meet_convention(self):
         if self.contain_dataset_files():
             return
-        elif os.path.exist(os.path.join(self.dataset_dir,"all.pkl")):
+        elif os.path.exists(os.path.join(self.dataset_dir,"all.pkl")):
             dataframe = pd.read_pickle(os.path.join(self.dataset_dir,"all.pkl"))
             train,test,validation = self.split_train_test_validation(dataframe)
             train.to_pickle(os.path.join(self.dataset_dir,"train.pkl"))      
@@ -89,7 +93,7 @@ class CelebAAlignedDataset(Dataset):
 
     def load_dataset_from_annotation_file(self):
         annotation_file = os.path.join(self.dataset_dir,"list_attr_celeba.txt")
-        headers = ['imgfile', '5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young']
+        headers = ['file_location', '5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young']
         df = pd.read_csv(annotation_file,sep= "\s+|\t+|\s+\t+|\t+\s+",names=headers,header=1)
         return df
     def generator(self,batch_size=32):
@@ -101,7 +105,8 @@ class CelebAAlignedDataset(Dataset):
                 current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
                 current_images = self.load_images(current_dataframe)
                 X = current_images.astype(np.float32)/255
-                smile = current_dataframe["Smiling"].as_matrix()
+                smile = current_dataframe["Smiling"].as_matrix().astype(np.uint8)
+                smile = np.eye(2)[smile]
                 yield X,smile
     def fix_labeling_issue(self,dataset):
         if dataset is None:
