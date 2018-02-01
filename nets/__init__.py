@@ -312,7 +312,7 @@ class AllInOneNetwork(object):
             self.dataset.load_dataset()
         assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
         ageGenderModel = self.get_model_with_labels(["age_estimation","gender_probablity"])
-        ageGenderModel.compile(loss = [age_loss, keras.losses.categorical_crossentropy],loss_weights=[1,10],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
+        ageGenderModel.compile(loss = [age_loss, keras.losses.categorical_crossentropy],loss_weights=[0.9,1],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         ageGenderModel.summary()
 
         X_test = self.dataset.test_dataset_images
