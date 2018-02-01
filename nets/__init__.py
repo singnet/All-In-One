@@ -16,7 +16,11 @@ import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 from dataset.celeba import CelebAAlignedDataset
 import os
+<<<<<<< HEAD
 from loggers import Log
+=======
+import Log
+>>>>>>> a46deec9b8f5dc5573d67adbc4ed8a9b03d97ef4
 
 LAMDA = 0
 SIGMOID = 3
