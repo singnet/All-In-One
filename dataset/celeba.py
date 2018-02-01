@@ -43,10 +43,10 @@ class CelebAAlignedDataset(Dataset):
             self.train_dataset = self.fix_labeling_issue(self.train_dataset)
             self.test_dataset = self.fix_labeling_issue(self.test_dataset)
             self.validation_dataset = self.fix_labeling_issue(self.validation_dataset)
-            self.test_dataset = self.test_dataset[:100]
-            self.validation_dataset = self.validation_dataset[:100]
-            self.test_dataset_images = self.load_images(self.test_dataset)
-            self.validation_dataset_images = self.load_images(self.validation_dataset)
+            # self.test_dataset = self.test_dataset[:100]
+            # self.validation_dataset = self.validation_dataset[:100]
+            self.test_dataset_images = self.load_images(self.test_dataset).astype(np.float32)/255
+            self.validation_dataset_images = self0.343078892679885,.load_images(self.validation_dataset).astype(np.float32)/255
             self.dataset_loaded = True
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
@@ -67,10 +67,10 @@ class CelebAAlignedDataset(Dataset):
                 if(len(faces)>0):
                     face_location = faces[0]
                     face_image = img[face_location.top():face_location.bottom(),face_location.left():face_location.right()]
-                    face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1])).astype("float32")
+                    face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1]))
                     output_images[index] = face_image
                 else:
-                    face_image = cv2.resize(img,(self.image_shape[0],self.image_shape[1])).astype("float32")
+                    face_image = cv2.resize(img,(self.image_shape[0],self.image_shape[1]))
                     output_images[index] = face_image
                     Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.dataset_dir,row["file_location"])+" Loading full image as face")
             return output_images
@@ -100,7 +100,7 @@ class CelebAAlignedDataset(Dataset):
         while True:
             indexes = np.arange(len(self.train_dataset))
             np.random.shuffle(indexes)
-            for i in range(0,len(indexes),batch_size):
+            for i in range(0,len(indexes)-batch_size,batch_size):
                 current_indexes = indexes[i:i+batch_size]
                 current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
                 current_images = self.load_images(current_dataframe)
