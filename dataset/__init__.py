@@ -133,3 +133,10 @@ class Dataset(object):
     @abstractmethod
     def fix_labeling_issue(self,dataset):
         pass
+    def get_column(self,dataframe,column):
+        if dataframe is None:
+            return None
+        elif column in dataframe.columns:
+            return dataframe[column].as_matrix()
+        else:
+            raise KeyError("dataframe does not contain column '"+label+"'")

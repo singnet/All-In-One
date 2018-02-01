@@ -2,6 +2,7 @@
 # from util.nets import AllInOneNetwork
 from nets import AllInOneNetwork
 from dataset.celeba import CelebAAlignedDataset
+from dataset.imdb_wiki import ImdbWikiDataset
 import argparse
 import os
 
@@ -15,7 +16,8 @@ INPUT_SIZE = (227,227,3)
 def get_dataset(name,dataset_dir):
     if name=="celeba":
         return CelebAAlignedDataset(dataset_dir=dataset_dir,labels=["Smiling"])
-    
+    elif name=="imdb" or name=="wiki":
+        return ImdbWikiDataset(dataset_dir,image_shape=(227,227,3),dataset="wiki",labels=["Age","Gender"])
 def main():
     parser = argparse.ArgumentParser()
     # --mtype is model type argument. it can be either 'np'(neutral vs positive emotion classifier) or 'ava'(All basic

@@ -15,6 +15,7 @@ import json
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 from dataset.celeba import CelebAAlignedDataset
+from dataset.imdb_wiki import ImdbWikiDataset
 import os
 from loggers import Log
 
@@ -241,7 +242,7 @@ class AllInOneNetwork(object):
         mouse_slightly_open1  = Dense(512,activation="relu")(merge_1_dense)
         mouse_slightly_open2 = Dense(2,activation="softmax",name="mouse_slightly_open")(mouse_slightly_open1)
         
-        
+
         model = Model(inputs=input_layer,
                         outputs=[detection_probability2,key_point_visibility_2, key_points2,pose2,smile2,
                                 gender_probablity3,age_estimation4,face_reco,young_3,eye_glasses2,
@@ -306,6 +307,31 @@ class AllInOneNetwork(object):
             logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
             logfile.write(str_date+"\n")
         return customCheckPoint
+    def train_imdb_wiki(self):
+        if not self.dataset.dataset_loaded:
+            self.dataset.load_dataset()
+        assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
+        ageGenderModel = self.get_model_with_labels(["age_estimation","gender_probablity"])
+        ageGenderModel.compile(loss = [age_loss, keras.losses.categorical_crossentropy],loss_weights=[1,10],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
+        ageGenderModel.summary()
+
+        X_test = self.dataset.test_dataset_images
+        age_test = self.dataset.test_dataset["Age"].as_matrix().astype(np.uint8)
+        gender_test = self.dataset.test_dataset["Gender"].as_matrix().astype(np.uint8)
+        gender_test = np.eye(2)[gender_test]
+        y_test = [age_test,gender_test]
+        if self.resume:
+            checkPoint = self.resume_model()
+            callbacks = [checkPoint,LambdaUpdateCallBack()]
+        else:
+            callbacks = [CustomModelCheckPoint(),LambdaUpdateCallBack()]
+        ageGenderModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
+        with open("logs/logs.txt","a+") as log_file:
+            score = ageGenderModel.evaluate(X_test,y_test)
+            log_file.write(str(score))
+        self.model.save_weights("models/"+self.large_model_name+".h5")
+        ageGenderModel.save_weights("models/"+self.small_model_name+".h5")
+
     def train_celebA(self):
         if not self.dataset.dataset_loaded:
             self.dataset.load_dataset()
@@ -331,3 +357,6 @@ class AllInOneNetwork(object):
     def train(self):
         if type(self.dataset) == CelebAAlignedDataset:
             self.train_celebA()
+        elif type(self.dataset) == ImdbWikiDataset:
+            self.train_imdb_wiki()
+        

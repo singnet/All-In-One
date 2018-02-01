@@ -7,13 +7,14 @@ import pandas as pd
 import cv2
 import dlib
 import numpy as np
+from scipy.io import loadmat
+from datetime import datetime
 
-class CelebAAlignedDataset(Dataset):
-    """Class that abstracs celeba aligned dataset.
+class ImdbWikiDataset(Dataset):
+    """Class that abstracs Imdb and wiki datasets.
     Assumtions
         - Dataset contains images inside dataset_dir
-        - list_attr_celeba.txt inside dataset_dir
-        - list_landmarks_align_celeba.txt inside dataset_dir
+        - either wiki.mat or imdb_crop.mat inside dataset_dir
     Parameters
     ----------
     dataset_dir : str
@@ -23,12 +24,12 @@ class CelebAAlignedDataset(Dataset):
         if the dataset path does not exist.
     """
 
-    def __init__(self,dataset_dir,image_shape=(227,227,3),labels=["Smiling","Male"]):
-        super(CelebAAlignedDataset,self).__init__(dataset_dir,image_shape)
+    def __init__(self,dataset_dir,image_shape=(227,227,3),dataset = "wiki",labels=["Age","Gender"]):
+        super(ImdbWikiDataset,self).__init__(dataset_dir,image_shape)
         self.labels = labels
-        self.detector = dlib.get_frontal_face_detector()
+        self.dataset=dataset
     def load_dataset(self):
-        if set(self.labels).issubset(["Smiling","Male"]):
+        if set(self.labels).issubset(["Age","Gender"]):
             if not self.contain_dataset_files():
                 self.meet_convention()
             Log.DEBUG_OUT = True
@@ -41,16 +42,17 @@ class CelebAAlignedDataset(Dataset):
             else:
                 self.validation_dataset = None
                 frameinfo = getframeinfo(currentframe())
+                Log.WARINING_OUT = True
                 Log.WARNING("Unable to find validation dataset",file_name=__name__,line_number=frameinfo.lineno)
-
+                Log.WARINING_OUT = False
             self.train_dataset = self.fix_labeling_issue(self.train_dataset)
             self.test_dataset = self.fix_labeling_issue(self.test_dataset)
             self.validation_dataset = self.fix_labeling_issue(self.validation_dataset)
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded train, test and validation dataset")
             Log.DEBUG_OUT =False
-            self.test_dataset = self.test_dataset[:2500]
-            self.validation_dataset = self.validation_dataset[:2500]
+            self.test_dataset = self.test_dataset[:100]
+            self.validation_dataset = self.validation_dataset[:100]
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading test images")
             Log.DEBUG_OUT =False
@@ -74,21 +76,15 @@ class CelebAAlignedDataset(Dataset):
             assert  "file_location" in dataframe.columns, "dataframe should contain file_location column"
             output_images = np.zeros((len(dataframe),self.image_shape[0],self.image_shape[1],self.image_shape[2]))
             for index,row in dataframe.iterrows():
-                img = cv2.imread(os.path.join(self.dataset_dir,row["file_location"]))
+                img = cv2.imread(os.path.join(self.dataset_dir,row["file_location"][0]))
 
                 if img is None:
-                    Log.WARNING("Unable to read images from "+os.path.join(self.dataset_dir,row["file_location"]))
+                    Log.WARNING("Unable to read images from "+os.path.join(self.dataset_dir,row["file_location"][0]))
                     continue
-                faces = self.detector(img)
-                if(len(faces)>0):
-                    face_location = faces[0]
-                    face_image = img[face_location.top():face_location.bottom(),face_location.left():face_location.right()]
-                    face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1]))
-                    output_images[index] = face_image
-                else:
-                    face_image = cv2.resize(img,(self.image_shape[0],self.image_shape[1]))
-                    output_images[index] = face_image
-                    Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.dataset_dir,row["file_location"])+" Loading full image as face")
+                face_location = row["face_location"][0].astype(int) 
+                face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
+                face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1]))
+                output_images[index] = face_image
             return output_images
     def meet_convention(self):
         if self.contain_dataset_files():
@@ -100,18 +96,13 @@ class CelebAAlignedDataset(Dataset):
             test.to_pickle(os.path.join(self.dataset_dir,"test.pkl"))      
             validation.to_pickle(os.path.join(self.dataset_dir,"validation.pkl"))
         else:
-            dataframe = self.load_dataset_from_annotation_file()
+            dataframe = self.load_from_mat(os.path.join(self.dataset_dir,self.dataset+".mat"))
             train,test,validation = self.split_train_test_validation(dataframe)
             train.to_pickle(os.path.join(self.dataset_dir,"train.pkl"))      
             test.to_pickle(os.path.join(self.dataset_dir,"test.pkl"))      
             validation.to_pickle(os.path.join(self.dataset_dir,"validation.pkl"))      
             dataframe.to_pickle(os.path.join(self.dataset_dir,"all.pkl"))
 
-    def load_dataset_from_annotation_file(self):
-        annotation_file = os.path.join(self.dataset_dir,"list_attr_celeba.txt")
-        headers = ['file_location', '5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young']
-        df = pd.read_csv(annotation_file,sep= "\s+|\t+|\s+\t+|\t+\s+",names=headers,header=1)
-        return df
     def generator(self,batch_size=32):
         while True:
             indexes = np.arange(len(self.train_dataset))
@@ -121,16 +112,51 @@ class CelebAAlignedDataset(Dataset):
                 current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
                 current_images = self.load_images(current_dataframe)
                 X = current_images.astype(np.float32)/255
-                smile = self.get_column(current_dataframe,"Smiling")
-                smile = np.eye(2)[smile]
-                yield X,smile
-
+                age = self.get_column(current_dataframe,"Age")
+                gender = self.get_column(current_dataframe,"Gender").astype(np.uint8)
+                gender = np.eye(2)[gender]
+                yield X,[age,gender]
+    
     
     def fix_labeling_issue(self,dataset):
         if dataset is None:
             return None
         output = dataset.copy(deep=True)
-        for label in self.labels:
-            output[label] = output[label]/2.0 + 1/2.0
+
+        output = output[np.isfinite(output['score'])]
+        output = output.reset_index(drop=True)
+        output = output[np.isfinite(output['Gender'])]
+        output = output.reset_index(drop=True)
+        output = output[np.isfinite(output['Age'])]
+        output = output.reset_index(drop=True)
+        output = output.loc[output["Age"]>0]
+        output = output.reset_index(drop=True)
+        output = output.loc[output["Age"]<150]
+        output = output.reset_index(drop=True)
+
         return output
 
+    def calc_age(self,taken, dob):
+        birth = datetime.fromordinal(max(int(dob) - 366, 1))
+
+        # assume the photo was taken in the middle of the year
+        if birth.month < 7:
+            return taken - birth.year
+        else:
+            return taken - birth.year - 1
+    def load_from_mat(self,mat_path):
+        meta = loadmat(mat_path)
+        file_location = meta[self.dataset][0, 0]["full_path"][0]
+        dob = meta[self.dataset][0, 0]["dob"][0]  # Matlab serial date number
+        gender = meta[self.dataset][0, 0]["gender"][0]
+        photo_taken = meta[self.dataset][0, 0]["photo_taken"][0]  # year
+        face_score = meta[self.dataset][0, 0]["face_score"][0]
+        second_face_score = meta[self.dataset][0, 0]["second_face_score"][0]
+        age = [self.calc_age(photo_taken[i], dob[i]) for i in range(len(dob))]
+        face_location = meta[self.dataset][0, 0]["face_location"][0]
+
+        df = pd.DataFrame.from_dict({"file_location":file_location,"Gender":gender,
+        
+        "score":face_score,"second_face_score":second_face_score,"Age":age,"face_location":face_location})
+
+        return df
