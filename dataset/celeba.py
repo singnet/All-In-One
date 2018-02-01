@@ -43,8 +43,8 @@ class CelebAAlignedDataset(Dataset):
             self.train_dataset = self.fix_labeling_issue(self.train_dataset)
             self.test_dataset = self.fix_labeling_issue(self.test_dataset)
             self.validation_dataset = self.fix_labeling_issue(self.validation_dataset)
-            self.test_dataset = self.test_dataset[:1000]
-            self.validation_dataset = self.validation_dataset[:1000]
+            self.test_dataset = self.test_dataset[:100]
+            self.validation_dataset = self.validation_dataset[:100]
             self.test_dataset_images = self.load_images(self.test_dataset)
             self.validation_dataset_images = self.load_images(self.validation_dataset)
             self.dataset_loaded = True
