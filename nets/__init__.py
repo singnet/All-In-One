@@ -15,6 +15,7 @@ import json
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 from dataset.celeba import CelebAAlignedDataset
+import os
 
 LAMDA = 0
 SIGMOID = 3
@@ -70,7 +71,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
 
         if (self.last_loss-current_val_loss) > 0.01:
             current_weights_name = "weights"+str(self.current_model_number)+".h5"
-            print("loss improved from "+str(self.last_loss)+" to "+str(current_val_loss)+", Saving model to "+current_weights_name)
+            print(" loss improved from "+str(self.last_loss)+" to "+str(current_val_loss)+", Saving model to "+current_weights_name)
             self.model.save_weights("models/"+current_weights_name);
             self.model.save_weights("models/last_weight.h5")
             self.current_model_number+=1
@@ -138,7 +139,14 @@ class AllInOneNetwork(object):
         self.model = self.build()
         self.dataset = dataset
         if(load_model!=None and os.path.exist(load_model)):
-            print("Loading model weights from",load_model)
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loading model weights from '"+load_model+"'")
+            try:
+                self.model.load_weights(load_model)
+                Log.DEBUG("Loaded model weights")
+            except:
+                Log.DEBUG("Unable to load from "+load_model)
+            Log.DEBUG_OUT =False
     def build(self):
         input_layer = Input(shape=self.input_shape)
        
@@ -318,7 +326,7 @@ class AllInOneNetwork(object):
             score = smileModel.evaluate(X_test,y_test)
             log_file.write(str(score))
         self.model.save_weights("models/"+self.large_model_name+".h5")
-        agModel.save_weights("models/"+self.small_model_name+".h5")
+        smileModel.save_weights("models/"+self.small_model_name+".h5")
     def train(self):
         if type(self.dataset) == CelebAAlignedDataset:
             self.train_celebA()
