@@ -31,6 +31,9 @@ class CelebAAlignedDataset(Dataset):
         if set(self.labels).issubset(["Smiling","Male"]):
             if not self.contain_dataset_files():
                 self.meet_convention()
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loading pickle files")
+            Log.DEBUG_OUT =False
             self.train_dataset = self.get_meta(os.path.join(self.dataset_dir,"train.pkl"))
             self.test_dataset = self.get_meta(os.path.join(self.dataset_dir,"test.pkl"))
             if os.path.exists(os.path.join(self.dataset_dir,"validation.pkl")):
@@ -39,15 +42,27 @@ class CelebAAlignedDataset(Dataset):
                 self.validation_dataset = None
                 frameinfo = getframeinfo(currentframe())
                 Log.WARNING("Unable to find validation dataset",file_name=__name__,line_number=frameinfo.lineno)
-        
+
             self.train_dataset = self.fix_labeling_issue(self.train_dataset)
             self.test_dataset = self.fix_labeling_issue(self.test_dataset)
             self.validation_dataset = self.fix_labeling_issue(self.validation_dataset)
-            # self.test_dataset = self.test_dataset[:100]
-            # self.validation_dataset = self.validation_dataset[:100]
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loaded train, test and validation dataset")
+            Log.DEBUG_OUT =False
+            self.test_dataset = self.test_dataset[:2500]
+            self.validation_dataset = self.validation_dataset[:2500]
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loading test images")
+            Log.DEBUG_OUT =False
             self.test_dataset_images = self.load_images(self.test_dataset).astype(np.float32)/255
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loading validation images")
+            Log.DEBUG_OUT =False
             self.validation_dataset_images = self.load_images(self.validation_dataset).astype(np.float32)/255
             self.dataset_loaded = True
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loaded all dataset and images")
+            Log.DEBUG_OUT =False
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
     def load_images(self,dataframe):
