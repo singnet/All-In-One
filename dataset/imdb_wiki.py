@@ -112,7 +112,7 @@ class ImdbWikiDataset(Dataset):
                 current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
                 current_images = self.load_images(current_dataframe)
                 X = current_images.astype(np.float32)/255
-                age = self.get_column(current_dataframe,"Age")
+                age = self.get_column(current_dataframe,"Age").astype(np.uint8)
                 gender = self.get_column(current_dataframe,"Gender").astype(np.uint8)
                 gender = np.eye(2)[gender]
                 yield X,[age,gender]
