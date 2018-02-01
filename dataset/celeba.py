@@ -43,10 +43,10 @@ class CelebAAlignedDataset(Dataset):
             self.train_dataset = self.fix_labeling_issue(self.train_dataset)
             self.test_dataset = self.fix_labeling_issue(self.test_dataset)
             self.validation_dataset = self.fix_labeling_issue(self.validation_dataset)
-            self.test_dataset = self.test_dataset[:100]
-            self.validation_dataset = self.validation_dataset[:100]
-            self.test_dataset_images = self.load_images(self.test_dataset)
-            self.validation_dataset_images = self.load_images(self.validation_dataset)
+            # self.test_dataset = self.test_dataset[:100]
+            # self.validation_dataset = self.validation_dataset[:100]
+            self.test_dataset_images = self.load_images(self.test_dataset).astype(np.float32)/255
+            self.validation_dataset_images = self.load_images(self.validation_dataset).astype(np.float32)/255
             self.dataset_loaded = True
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
