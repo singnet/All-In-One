@@ -51,8 +51,8 @@ class ImdbWikiDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded train, test and validation dataset")
             Log.DEBUG_OUT =False
-            self.test_dataset = self.test_dataset[:100]
-            self.validation_dataset = self.validation_dataset[:100]
+            self.test_dataset = self.test_dataset[:2500]
+            self.validation_dataset = self.validation_dataset[:2500]
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading test images")
             Log.DEBUG_OUT =False
