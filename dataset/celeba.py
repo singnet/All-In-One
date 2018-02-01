@@ -123,7 +123,6 @@ class CelebAAlignedDataset(Dataset):
                 X = current_images.astype(np.float32)/255
                 smile = self.get_column(current_dataframe,"Smiling")
                 smile = np.eye(2)[smile]
-                print (smile)
                 yield X,smile
     def get_column(self,dataframe,column):
         if dataframe is None:
