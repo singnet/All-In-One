@@ -16,11 +16,7 @@ import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 from dataset.celeba import CelebAAlignedDataset
 import os
-<<<<<<< HEAD
 from loggers import Log
-=======
-import Log
->>>>>>> a46deec9b8f5dc5573d67adbc4ed8a9b03d97ef4
 
 LAMDA = 0
 SIGMOID = 3
@@ -244,6 +240,7 @@ class AllInOneNetwork(object):
         # probablity face being smile face
         mouse_slightly_open1  = Dense(512,activation="relu")(merge_1_dense)
         mouse_slightly_open2 = Dense(2,activation="softmax",name="mouse_slightly_open")(mouse_slightly_open1)
+        
         
         model = Model(inputs=input_layer,
                         outputs=[detection_probability2,key_point_visibility_2, key_points2,pose2,smile2,
