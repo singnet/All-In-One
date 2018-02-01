@@ -68,9 +68,9 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
         current_loss = logs.get("loss")
        
 
-        if (self.last_loss-current_loss) > 0.01:
+        if (self.last_loss-current_val_loss) > 0.01:
             current_weights_name = "weights"+str(self.current_model_number)+".h5"
-            print("loss improved from "+str(self.last_loss)+" to "+str(current_loss)+", Saving model to "+current_weights_name)
+            print("loss improved from "+str(self.last_loss)+" to "+str(current_val_loss)+", Saving model to "+current_weights_name)
             self.model.save_weights("models/"+current_weights_name);
             self.model.save_weights("models/last_weight.h5")
             self.current_model_number+=1
@@ -307,7 +307,7 @@ class AllInOneNetwork(object):
         
         X_test = self.dataset.test_dataset_images
         smiling = self.dataset.test_dataset["Smiling"].as_matrix().astype(np.uint8)
-        y_test = np.eye(2)[smiling]
+        y_test = np.eye(2)[smiling]0.343078892679885,
         if self.resume:
             checkPoint = self.resume_model()
             callbacks = [checkPoint]
