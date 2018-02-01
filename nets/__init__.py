@@ -14,7 +14,7 @@ from datetime import datetime
 import json
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
-
+from dataset.celeba import CelebAAlignedDataset
 
 LAMDA = 0
 SIGMOID = 3
@@ -49,7 +49,6 @@ class LambdaUpdateCallBack(keras.callbacks.Callback):
 class CustomModelCheckPoint(keras.callbacks.Callback):
     def __init__(self,**kargs):
         super(CustomModelCheckPoint,self).__init__(**kargs)
-
         self.last_loss = 1000000000
         self.last_accuracy = 0
         self.current_model_number = 0;
@@ -112,10 +111,10 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
             with open("epoch_number.json","w+") as json_file:
                 data = {"epoch_number":self.epoch_number}
                 json.dump(data,json_file,indent=4)
-    
 
-class AllInOneNeuralNetwork(object):
-    def __init__(self,input_shape,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model",load_model=None):
+
+class AllInOneNetwork(object):
+    def __init__(self,input_shape,dataset,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model",load_model=None):
         self.input_shape = input_shape
         self.is_built = False
         self.learning_rate = learning_rate
@@ -128,7 +127,8 @@ class AllInOneNeuralNetwork(object):
             "pose": 5,
             "landmarks": 100,
             "identity": 0.7,
-            "smile": 10
+            "smile": 10,
+            "eye_glasses": 0.5
         }
         self.epochs = epochs
         self.batch_size = batch_size
@@ -136,6 +136,7 @@ class AllInOneNeuralNetwork(object):
         self.large_model_name = large_model_name
         self.small_model_name = small_model_name
         self.model = self.build()
+        self.dataset = dataset
         if(load_model!=None and os.path.exist(load_model)):
             print("Loading model weights from",load_model)
     def build(self):
@@ -192,6 +193,15 @@ class AllInOneNeuralNetwork(object):
         gender_probablity2 = Dense(128,activation="relu")(gender_probablity1)
         gender_probablity3 = Dense(2,activation="softmax",name="gender_probablity")(gender_probablity2)
 
+       
+
+        # Young
+        young_1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
+        young_2 = Dense(128,activation="relu")(young_1)
+        young_3 = Dense(2,activation="softmax",name="is_young")(young_2)
+
+        #
+        
 
         # face detection    
         detection_probability1 = Dense(512,activation="relu")(merge_1_dense)
@@ -214,149 +224,71 @@ class AllInOneNeuralNetwork(object):
         smile1 = Dense(512,activation="relu")(merge_1_dense)
         smile2 = Dense(2,activation="softmax",name="smile")(smile1)
 
+        # probablity face being smile face
+        eye_glasses1 = Dense(512,activation="relu")(merge_1_dense)
+        eye_glasses2 = Dense(2,activation="softmax",name="eye_glasses")(eye_glasses1)
+        
+        # probablity face being smile face
+        mouse_slightly_open1  = Dense(512,activation="relu")(merge_1_dense)
+        mouse_slightly_open2 = Dense(2,activation="softmax",name="mouse_slightly_open")(mouse_slightly_open1)
+        
         model = Model(inputs=input_layer,
                         outputs=[detection_probability2,key_point_visibility_2, key_points2,pose2,smile2,
-                                gender_probablity3,age_estimation4,face_reco
+                                gender_probablity3,age_estimation4,face_reco,young_3,eye_glasses2,
+                                mouse_slightly_open2
                                 ])
+        
         self.is_built = True;
         return model
-    def get_detection_probablity_model(self):
-        input_layer = self.model.inputs
-        output_layer  = self.model.layers[35].output
-        model =  Model(inputs=input_layer,outputs=output_layer)
-        model.compile(loss = keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_key_point_visibility_model(self):
-        input_layer = self.model.inputs
-        output_layer  = self.model.layers[36].output
-        model = Model(inputs=input_layer,outputs=output_layer)
-        model.compile(loss = keras.losses.mean_squared_error,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_key_points_model(self):
-        input_layer = self.model.inputs
-        output_layer  = self.model.layers[37].output
-        model = Model(inputs=input_layer,outputs=output_layer)
-        model.compile(loss = keras.losses.mean_squared_error,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_pose_model(self):
-        input_layer = self.model.inputs
-        output_layer  = self.model.layers[38].output
-        model =  Model(inputs=input_layer,outputs=output_layer)
-        model.compile(loss = keras.losses.mean_squared_error,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_smile_model(self):
-        input_layer = self.model.inputs
-        output_layer  = self.model.layers[39].output
-        model = Model(inputs=input_layer,outputs=output_layer)
-        model.compile(loss = keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_gender_model(self):
-        input_layer = self.model.inputs
-        output_layer  = self.model.layers[40].output
-        model = Model(inputs=input_layer,outputs=output_layer)
-        model.compile(loss = keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_age_model(self):
-        input_layer = self.model.inputs
-        output_layer  = self.model.layers[41].output
-        model = Model(inputs=input_layer,outputs=output_layer)
-        model.compile(loss = age_loss,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_face_reco_model(self):
-        input_layer = self.model.inputs
-        output_layer  = self.model.layers[42].output
-        model = Model(inputs=input_layer,outputs=output_layer)
-        model.compile(loss = keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_age_gender_model(self):
-        input_layer = self.model.inputs
+    def get_layer(self,name):
+        for layer in self.model.layers:
+            if layer.name == name:
+                return layer
+        raise Exception("Layer with name "+name + " does not exist")
+    """Get model which have output layer given by labels.
+    Parameters
+    ----------
+    labels : list
+        list of output labels. Elements of the list should be one or more 
+        of ["detection_probablity","kpoints_visibility","key_points","pose","smile",
+            "gender_probablity","age_estimation","face_reco","is_young","eye_glasses",
+            "mouse_slightly_open"]
 
-        # detection_layer = self.model.layers[31].output
-        gender_layer  = self.model.layers[40].output
-        age_layer  = self.model.layers[41].output
-        model = Model(inputs=input_layer,outputs=[age_layer,gender_layer])
+    """
 
-        model.compile(loss = [age_loss,keras.losses.categorical_crossentropy],
-        loss_weights = [10,1],
+    def get_model_with_labels(self,labels):
+        all_lists = ["detection_probablity","kpoints_visibility","key_points","pose","smile",
+            "gender_probablity","age_estimation","face_reco","is_young","eye_glasses",
+            "mouse_slightly_open"]
+        assert type(labels) == list, " argment should be list type"
+        assert not(labels is None or len(labels)==0), "Labels should not be empty"
+        assert set(labels).issubset(all_lists), str(labels)+" contains lists which are not in "+ str(all_lists)
         
-        optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
-        return model
-    def get_smile_gender_model(self):
         input_layer = self.model.inputs
-
-        # detection_layer = self.model.layers[31].output
-        gender_layer  = self.model.layers[40].output
-        smile_layer  = self.model.layers[39].output
-        model = Model(inputs=input_layer,outputs=[gender_layer,smile_layer])
-
-        model.compile(loss = [keras.losses.categorical_crossentropy,kers.losses.categorical_crossentropy],
-        loss_weights = [1,1],
-        
-        optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
+        output_layers = []
+        for label in labels:
+            output_layer  = self.get_layer(label)
+            output_layers.append(output_layer.output)
+        model =  Model(inputs=input_layer,outputs=output_layers)
         return model
-    def train_on_imdbwiki_dataset(self,callbacks=[]):
-        # agModel = self.get_age_gender_model()
-        # agModel.summary()
-        # X_test = self.preprocessor.test_dataset[0]
-        # age_test = self.preprocessor.test_dataset[1]["age"].as_matrix()
-        # gender = self.preprocessor.test_dataset[1]["gender"].as_matrix().astype(np.uint8)
-        # gender_test = np.eye(2)[gender]
-        # y_test = [age_test,gender_test]
-        
-        # agModel.fit_generator(self.preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
-        # with open("logs/logs.txt","a+") as log_file:
-        #     score = agModel.evaluate(X_test,y_test)
-        #     log_file.write(str(score))
-        # self.model.save_weights("models/"+self.large_model_name+".h5")
-        # agModel.save_weights("models/"+self.small_model_name+".h5")
-        pass
-        
-    def train_on_celeba_dataset(self,callbacks=[]):
-        smileModel = self.get_smile_model()
-        smileModel.summary()
-        
-        X_test = self.preprocessor.test_dataset[0]
-        test_dataset = self.preprocessor.convertToOneAndZero(self.preprocessor.test_dataset[1])
-        smiling = test_dataset["Smiling"].as_matrix().astype(np.uint8)
-        y_test = np.eye(2)[smiling]
-        
-        smileModel.fit_generator(self.preprocessor.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
-        with open("logs/logs.txt","a+") as log_file:
-            score = smileModel.evaluate(X_test,y_test)
-            log_file.write(str(score))
-        self.model.save_weights("models/"+self.large_model_name+".h5")
-        agModel.save_weights("models/"+self.small_model_name+".h5")
-
-    def train(self):
-        if self.resume:
-            import os
-            model_path = "models/large_model.h5"
-            if os.path.exists(model_path):
-                print "loading model from ",model_path
-                self.model.load_weights(model_path)
-            else:
-                print "Unable to load model from ",model_path," model path does not exist"
-        # config = tf.ConfigProto()
-        # config.gpu_options.per_process_gpu_memory_fraction = 0.7
-        # set_session(tf.Session(config=config))
-        ### Resume
+    
+    def resume_model(self):
         customCheckPoint = CustomModelCheckPoint()
         REMAINING_EPOCHS = self.epochs
-        if (self.resume):
-            if os.path.exists("epoch_number.json"):
-                with open("epoch_number.json","r") as json_file:
-                    try:
-                        data = json.load(json_file)
-                        customCheckPoint.epoch_number = data["epoch_number"]
-                        REMAINING_EPOCHS -= customCheckPoint.epoch_number
-                    except:
+        if os.path.exists("epoch_number.json"):
+            with open("epoch_number.json","r") as json_file:
+                try:
+                    data = json.load(json_file)
+                    customCheckPoint.epoch_number = data["epoch_number"]
+                    REMAINING_EPOCHS -= customCheckPoint.epoch_number
+                except:
 
-                        print ("unable to read epoch number from file. resuming epoch from 0.")
+                    print ("unable to read epoch number from file. resuming epoch from 0.")
 
-                    
-                print("resuming from previous epoch number:")
-                print("previous epoch number",customCheckPoint.epoch_number)
-                print("remaining epochs",REMAINING_EPOCHS)
+                
+            print("resuming from previous epoch number:")
+            print("previous epoch number",customCheckPoint.epoch_number)
+            print("remaining epochs",REMAINING_EPOCHS)
         if REMAINING_EPOCHS < 0:
             REMAINING_EPOCHS =1
         with open("log.txt","a+") as logfile:
@@ -364,9 +296,29 @@ class AllInOneNeuralNetwork(object):
             logfile.write("Starting to train model\n")
             logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
             logfile.write(str_date+"\n")
-
-        if self.preprocessor.dataset_type=="wiki" or self.preprocessor.dataset_type=="imdb":
-            self.train_on_imdbwiki_dataset([LambdaUpdateCallBack(),customCheckPoint])
-        elif self.preprocessor.dataset_type == "celeba":
-            self.train_on_celeba_dataset([customCheckPoint])
-
+        return customCheckPoint
+    def train_celebA(self):
+        if not self.dataset.dataset_loaded:
+            self.dataset.load_dataset()
+        assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
+        smileModel = self.get_model_with_labels(["smile"])
+        smileModel.compile(loss = keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
+        smileModel.summary()
+        
+        X_test = self.dataset.test_dataset_images
+        smiling = self.dataset.test_dataset["Smiling"].as_matrix().astype(np.uint8)
+        y_test = np.eye(2)[smiling]
+        if self.resume:
+            checkPoint = self.resume_model()
+            callbacks = [checkPoint]
+        else:
+            callbacks = [CustomModelCheckPoint()]
+        smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
+        with open("logs/logs.txt","a+") as log_file:
+            score = smileModel.evaluate(X_test,y_test)
+            log_file.write(str(score))
+        self.model.save_weights("models/"+self.large_model_name+".h5")
+        agModel.save_weights("models/"+self.small_model_name+".h5")
+    def train(self):
+        if type(self.dataset) == CelebAAlignedDataset:
+            self.train_celebA()
