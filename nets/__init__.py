@@ -138,7 +138,7 @@ class AllInOneNetwork(object):
         self.small_model_name = small_model_name
         self.model = self.build()
         self.dataset = dataset
-        if(load_model!=None and os.path.exist(load_model)):
+        if(load_model!=None and os.path.exists(load_model)):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading model weights from '"+load_model+"'")
             try:
