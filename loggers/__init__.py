@@ -53,11 +53,11 @@ class Log(object):
     ERROR_OUT = True
     @staticmethod
     def DEBUG(message):
-        if DEBUG_OUT:
+        if Log.DEBUG_OUT:
             print(message)
     @staticmethod    
     def WARNING(message):
-        if WARINING_OUT:
+        if Log.WARINING_OUT:
             cf = currentframe()
             line_number = cf.f_back.f_lineno
 
@@ -71,7 +71,7 @@ class Log(object):
                 Log.print_colored(message,bg=color.bg.yellow)
     @staticmethod
     def ERROR(message):
-        if ERROR_OUT:
+        if Log.ERROR_OUT:
             cf = currentframe()
             line_number = cf.f_back.f_lineno
             file_name = cf.f_back.filename
