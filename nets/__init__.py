@@ -195,8 +195,8 @@ class AllInOneNetwork(object):
         # age estimation layers
         age_estimation1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
         age_estimation2 = Dense(128,activation="relu")(age_estimation1)
-        age_estimation3 = Dense(1,activation="linear")(age_estimation2)
-        age_estimation4 = RoundLayer(name="age_estimation")(age_estimation3)
+        age_estimation3 = Dense(1,activation="linear",name="age_estimation")(age_estimation2)
+        # age_estimation4 = RoundLayer(name="age_estimation")(age_estimation3)
         # gender probablity
 
         gender_probablity1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
@@ -245,7 +245,7 @@ class AllInOneNetwork(object):
 
         model = Model(inputs=input_layer,
                         outputs=[detection_probability2,key_point_visibility_2, key_points2,pose2,smile2,
-                                gender_probablity3,age_estimation4,face_reco,young_3,eye_glasses2,
+                                gender_probablity3,age_estimation3,face_reco,young_3,eye_glasses2,
                                 mouse_slightly_open2
                                 ])
         
@@ -316,7 +316,7 @@ class AllInOneNetwork(object):
         ageGenderModel.summary()
 
         X_test = self.dataset.test_dataset_images
-        age_test = self.dataset.test_dataset["Age"].as_matrix().astype(np.uint8)
+        age_test = self.dataset.test_dataset["Age"].as_matrix().astype(np.float32)/150.0
         gender_test = self.dataset.test_dataset["Gender"].as_matrix().astype(np.uint8)
         gender_test = np.eye(2)[gender_test]
         y_test = [age_test,gender_test]
