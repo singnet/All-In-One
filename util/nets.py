@@ -15,6 +15,7 @@ import json
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 
+
 LAMDA = 0
 SIGMOID = 3
 
@@ -48,6 +49,7 @@ class LambdaUpdateCallBack(keras.callbacks.Callback):
 class CustomModelCheckPoint(keras.callbacks.Callback):
     def __init__(self,**kargs):
         super(CustomModelCheckPoint,self).__init__(**kargs)
+
         self.last_loss = 1000000000
         self.last_accuracy = 0
         self.current_model_number = 0;
@@ -362,8 +364,9 @@ class AllInOneNeuralNetwork(object):
             logfile.write("Starting to train model\n")
             logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
             logfile.write(str_date+"\n")
+
         if self.preprocessor.dataset_type=="wiki" or self.preprocessor.dataset_type=="imdb":
             self.train_on_imdbwiki_dataset([LambdaUpdateCallBack(),customCheckPoint])
         elif self.preprocessor.dataset_type == "celeba":
             self.train_on_celeba_dataset([customCheckPoint])
-        
+
