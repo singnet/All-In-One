@@ -307,7 +307,7 @@ class AllInOneNetwork(object):
         
         X_test = self.dataset.test_dataset_images
         smiling = self.dataset.test_dataset["Smiling"].as_matrix().astype(np.uint8)
-        y_test = np.eye(2)[smiling]0.343078892679885,
+        y_test = np.eye(2)[smiling]
         if self.resume:
             checkPoint = self.resume_model()
             callbacks = [checkPoint]

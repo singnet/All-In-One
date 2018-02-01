@@ -3,3 +3,4 @@ models/*
 logs/*
 log.txt
 logs.txt
+epoch_number.json
