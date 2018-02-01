@@ -280,7 +280,7 @@ class AllInOneNetwork(object):
             output_layers.append(output_layer.output)
         model =  Model(inputs=input_layer,outputs=output_layers)
         return model
-def resume_model(self):
+    def resume_model(self):
         customCheckPoint = CustomModelCheckPoint()
         REMAINING_EPOCHS = self.epochs
         if os.path.exists("epoch_number.json"):
