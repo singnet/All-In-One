@@ -49,8 +49,8 @@ class CelebAAlignedDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded train, test and validation dataset")
             Log.DEBUG_OUT =False
-            self.test_dataset = self.test_dataset[:2500]
-            self.validation_dataset = self.validation_dataset[:2500]
+            self.test_dataset = self.test_dataset[:100]
+            self.validation_dataset = self.validation_dataset[:100]
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading test images")
             Log.DEBUG_OUT =False
@@ -63,6 +63,7 @@ class CelebAAlignedDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded all dataset and images")
             Log.DEBUG_OUT =False
+            
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
     def load_images(self,dataframe):
@@ -122,6 +123,7 @@ class CelebAAlignedDataset(Dataset):
                 X = current_images.astype(np.float32)/255
                 smile = self.get_column(current_dataframe,"Smiling")
                 smile = np.eye(2)[smile]
+                print (smile)
                 yield X,smile
     def get_column(self,dataframe,column):
         if dataframe is None:
