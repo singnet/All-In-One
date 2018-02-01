@@ -12,6 +12,10 @@ INPUT_SIZE = (227,227,3)
 # preprocessor = ImdbWikiDatasetPreprocessor("/home/mtk/datasets/israel/imdb_crop","imdb")
 # preprocessor.split_dataset_to_train_test(0.8)
 # preprocessor.train_model(None)
+def get_dataset(name,dataset_dir):
+    if name=="celeba":
+        return CelebAAlignedDataset(dataset_dir=dataset_dir,labels=["Smiling"])
+    
 def main():
     parser = argparse.ArgumentParser()
     # --mtype is model type argument. it can be either 'np'(neutral vs positive emotion classifier) or 'ava'(All basic
@@ -35,31 +39,12 @@ def main():
     if not args.dataset in ["wiki","imdb", "celeba"]:
         print "currently implemented for only wiki, imdb and celeba datasets"
         exit(0)
-    images_path = args.images_path
-    dataset = args.dataset
 
-    # if dataset=="wiki" or dataset == "imdb":
-    #     if args.os=="":
-    #         small_model = "wiki_age_gender"
-    #     else:
-    #         small_model = args.os
-    #     preprocessor = ImdbWikiDatasetPreprocessor(images_path,dataset,args.load_db)
-    # elif dataset=="celeba":
-    #     preprocessor = CelebADatasetPreprocessor(images_path)
-    #     if args.os=="":
-    #         small_model = "celeba_smile"
-    #     else:
-    #         small_model = args.os
-        
-    # else:
-    #     print "Unable to recognize the dataset type given",dataset
-    #     exit(0)
-    # net= AllInOneNeuralNetwork(INPUT_SIZE,preprocessor,batch_size=args.batch_size,epochs=args.epochs,learning_rate=args.lr,load_db = args.load_db,resume=args.resume,steps_per_epoch=args.steps,large_model_name=args.ol,small_model_name=small_model,load_model=args.load_model)
-    # net.train()
-
-    celebADataset = CelebAAlignedDataset("/home/mtk/datasets/img_align_celeba/img_align_celeba")
-    celebADataset.load_dataset()
-    net = AllInOneNetwork((227,227,3),celebADataset)
+    
+    datasetClass = get_dataset(args.dataset,args.images_path)
+    datasetClass.load_dataset()
+    net = AllInOneNetwork((227,227,3),datasetClass,epochs=args.epochs,batch_size= args.batch_size,learning_rate=args.lr,load_db=args.load_db,resume=args.resume,
+        steps_per_epoch=args.steps,large_model_name=args.ol,small_model_name=args.os,load_model=args.load_model)
     net.train()
 
 if __name__== "__main__":
