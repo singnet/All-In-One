@@ -105,9 +105,17 @@ class CelebAAlignedDataset(Dataset):
                 current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
                 current_images = self.load_images(current_dataframe)
                 X = current_images.astype(np.float32)/255
-                smile = current_dataframe["Smiling"].as_matrix().astype(np.uint8)
+                smile = self.get_column(current_dataframe,"Smiling")
                 smile = np.eye(2)[smile]
                 yield X,smile
+    def get_column(self,dataframe,column):
+        if dataframe is None:
+            return None
+        elif column in dataframe.columns:
+            return dataframe[column].as_matrix().astype(np.uint8)
+        else:
+            raise KeyError("dataframe does not contain column '"+label+"'")
+    
     def fix_labeling_issue(self,dataset):
         if dataset is None:
             return None
