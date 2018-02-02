@@ -149,6 +149,11 @@ class AllInOneNetwork(object):
             except:
                 Log.DEBUG("Unable to load from "+load_model)
             Log.DEBUG_OUT =False
+    def save_model_to_json(self,path):
+        model_json = self.model.to_json()
+        with open(path,"w+") as json_file:
+            json_file.write(model_json)
+            print "Saved model"
     def build(self):
         input_layer = Input(shape=self.input_shape)
        
