@@ -88,7 +88,7 @@ class CelebAAlignedDataset(Dataset):
                     except:
                         Log.ERROR_OUT = True
                         Log.ERROR ("error",face_image is None,img is None, len(faces))
-                        Log.ERROR (face_location.top(),face_location.bottom(),face_location.left(),face_location.right())
+                        Log.ERROR (face_location.top()+","+ face_location.bottom()+","+face_location.left()+","+face_location.right())
                         Log.ERROR_OUT = False
                     output_images[index] = face_image
                 else:
