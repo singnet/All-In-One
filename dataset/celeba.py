@@ -80,22 +80,24 @@ class CelebAAlignedDataset(Dataset):
                     Log.WARNING("Unable to read images from "+os.path.join(self.dataset_dir,row["file_location"]))
                     continue
                 faces = self.detector(img)
-                if(len(faces)>0):
-                    face_location = faces[0]
-                    face_image = img[face_location.top():face_location.bottom(),face_location.left():face_location.right()]
-                    try:
-                        face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1]))
+                for i in range(len(faces)):
+                    if(len(faces)>0):
+                        face_location = faces[i]
+                        face_image = img[face_location.top():face_location.bottom(),face_location.left():face_location.right()]
+                        try:
+                            face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1]))
+                            output_images[index] = face_image
+                            break
+                        except:
+                            # Log.ERROR_OUT = True
+                            # Log.ERROR ("error"+","+str(face_image is None)+","+str(img is None)+","+ str(len(faces)))
+                            # Log.ERROR (str(face_location.top())+","+ str(face_location.bottom())+","+str(face_location.left())+","+str(face_location.right()))
+                            print (str(face_location.top())+","+ str(face_location.bottom())+","+str(face_location.left())+","+str(face_location.right()))
+                            print ("error"+","+str(face_image is None)+","+str(img is None)+","+ str(len(faces)))
+                    else:
+                        face_image = cv2.resize(img,(self.image_shape[0],self.image_shape[1]))
                         output_images[index] = face_image
-                    except:
-                        # Log.ERROR_OUT = True
-                        # Log.ERROR ("error"+","+str(face_image is None)+","+str(img is None)+","+ str(len(faces)))
-                        # Log.ERROR (str(face_location.top())+","+ str(face_location.bottom())+","+str(face_location.left())+","+str(face_location.right()))
-                        print (str(face_location.top())+","+ str(face_location.bottom())+","+str(face_location.left())+","+str(face_location.right()))
-                        print ("error"+","+str(face_image is None)+","+str(img is None)+","+ str(len(faces)))
-                else:
-                    face_image = cv2.resize(img,(self.image_shape[0],self.image_shape[1]))
-                    output_images[index] = face_image
-                    Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.dataset_dir,row["file_location"])+" Loading full image as face")
+                        Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.dataset_dir,row["file_location"])+" Loading full image as face")
             return output_images
     def meet_convention(self):
         if self.contain_dataset_files():
