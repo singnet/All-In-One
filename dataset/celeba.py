@@ -87,7 +87,7 @@ class CelebAAlignedDataset(Dataset):
                         face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1]))
                     except:
                         Log.ERROR_OUT = True
-                        Log.ERROR ("error"+","+str(face_image is None)+","+str(img is None)+","+ str(len(faces))
+                        Log.ERROR ("error"+","+str(face_image is None)+","+str(img is None)+","+ str(len(faces)))
                         Log.ERROR (str(face_location.top())+","+ str(face_location.bottom())+","+str(face_location.left())+","+str(face_location.right()))
                         Log.ERROR_OUT = False
                     output_images[index] = face_image
