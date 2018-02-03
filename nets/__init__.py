@@ -139,6 +139,7 @@ class AllInOneNetwork(object):
         self.large_model_name = large_model_name
         self.small_model_name = small_model_name
         self.model = self.build()
+        self.save_model_to_json("models/all-in-one-model1.json")
         self.dataset = dataset
         if(load_model!=None and os.path.exists(load_model)):
             Log.DEBUG_OUT = True
@@ -253,7 +254,7 @@ class AllInOneNetwork(object):
                                 gender_probablity3,age_estimation3,face_reco,young_3,eye_glasses2,
                                 mouse_slightly_open2
                                 ])
-        self.save_model_to_json("models/all-in-one-model1.json")
+        
         self.is_built = True;
         return model
     def get_layer(self,name):
