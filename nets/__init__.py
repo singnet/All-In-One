@@ -253,7 +253,7 @@ class AllInOneNetwork(object):
                                 gender_probablity3,age_estimation3,face_reco,young_3,eye_glasses2,
                                 mouse_slightly_open2
                                 ])
-        
+        self.save_model_to_json("models/all-in-one-model1.json")
         self.is_built = True;
         return model
     def get_layer(self,name):

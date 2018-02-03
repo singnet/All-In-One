@@ -74,7 +74,8 @@ class Log(object):
         if Log.ERROR_OUT:
             cf = currentframe()
             line_number = cf.f_back.f_lineno
-            file_name = cf.f_back.filename
+
+            file_name = cf.f_back.f_globals["__name__"]+".py"
             if file_name!=None and line_number!=None:
                 Log.print_colored(message+", at "+ file_name+ " line-number:"+ str(line_number),bg=color.bg.red)
             elif file_name!=None:
