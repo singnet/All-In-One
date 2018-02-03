@@ -66,9 +66,9 @@ class Log(object):
             if file_name!=None and line_number!=None:
                 Log.print_colored(message+", at "+ file_name+ " line-number:"+ str(line_number),bg=colors.bg.orange)
             elif file_name!=None:
-                Log.print_colored(message+", at "+ file_name,bg=color.bg.yellow)
+                Log.print_colored(message+", at "+ file_name,bg=colors.bg.yellow)
             else:
-                Log.print_colored(message,bg=color.bg.yellow)
+                Log.print_colored(message,bg=colors.bg.yellow)
     @staticmethod
     def ERROR(message):
         if Log.ERROR_OUT:
@@ -77,11 +77,11 @@ class Log(object):
 
             file_name = cf.f_back.f_globals["__name__"]+".py"
             if file_name!=None and line_number!=None:
-                Log.print_colored(message+", at "+ file_name+ " line-number:"+ str(line_number),bg=color.bg.red)
+                Log.print_colored(message+", at "+ file_name+ " line-number:"+ str(line_number),bg=colors.bg.red)
             elif file_name!=None:
-                Log.print_colored(message+", at "+ file_name,bg=color.bg.red)
+                Log.print_colored(message+", at "+ file_name,bg=colors.bg.red)
             else:
-                Log.print_colored(message,bg=color.bg.red)
+                Log.print_colored(message,bg=colors.bg.red)
     @staticmethod
     def LOG(message,file=None):
         if type(out_file) == file:
