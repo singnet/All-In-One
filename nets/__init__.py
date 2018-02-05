@@ -334,9 +334,9 @@ class AllInOneNetwork(object):
         y_test = [age_test,gender_test]
         if self.resume:
             checkPoint = self.resume_model()
-            callbacks = [checkPoint)]
+            callbacks = [checkPoint]
         else:
-            callbacks = [CustomModelCheckPoint())]
+            callbacks = [CustomModelCheckPoint()]
         ageGenderModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = ageGenderModel.evaluate(X_test,y_test)
