@@ -46,7 +46,7 @@ def age_loss(y_true,y_pred):
     loss2 = LAMDA *(1 - K.exp(-(K.square(y_pred - y_true)/(2* SIGMOID))))
     return loss1+loss2
 def relative_mse_loss(y_true,y_pred):
-    return K.abs(y_true - y_pred)/K.sqrt(y_true)
+    return K.square(y_true - y_pred)/y_true
 
     # return (1.0/2.0) * K.square(y_pred - y_true)
 class LambdaUpdateCallBack(keras.callbacks.Callback):
