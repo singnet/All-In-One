@@ -37,7 +37,7 @@ class RoundLayer(Layer):
 
 
 def age_margin_mse_loss(y_true,y_pred):
-    return K.max(K.abs(y_pred -y_true)-2.25,0)
+    return K.max(K.square(y_pred -y_true)-2.25,0)
 
 def age_loss(y_true,y_pred):
     global LAMDA,SIGMOID
@@ -320,7 +320,7 @@ class AllInOneNetwork(object):
             self.dataset.load_dataset()
         assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
         ageGenderModel = self.get_model_with_labels(["age_estimation","gender_probablity"])
-        ageGenderModel.compile(loss = [age_margin_mse_loss, keras.losses.categorical_crossentropy],loss_weights=[0.5,1],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
+        ageGenderModel.compile(loss = [age_loss, keras.losses.categorical_crossentropy],loss_weights=[0.01,1],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         ageGenderModel.summary()
 
         X_test = self.dataset.test_dataset_images
@@ -330,9 +330,9 @@ class AllInOneNetwork(object):
         y_test = [age_test,gender_test]
         if self.resume:
             checkPoint = self.resume_model()
-            callbacks = [checkPoint]
+            callbacks = [checkPoint,LambdaUpdateCallBack()]
         else:
-            callbacks = [CustomModelCheckPoint()]
+            callbacks = [CustomModelCheckPoint(),LambdaUpdateCallBack()]
         ageGenderModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = ageGenderModel.evaluate(X_test,y_test)
