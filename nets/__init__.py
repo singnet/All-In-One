@@ -37,7 +37,7 @@ class RoundLayer(Layer):
 
 
 def age_margin_mse_loss(y_true,y_pred):
-    return K.max(K.square(y_pred -y_true)-2.25,0)
+    return K.max(K.abs(y_pred -y_true)-2.25,0)
 
 def age_loss(y_true,y_pred):
     global LAMDA,SIGMOID
