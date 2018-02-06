@@ -123,12 +123,10 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
 
 
 class AllInOneNetwork(object):
-    def __init__(self,input_shape,dataset,epochs=10,batch_size=32,learning_rate=1e-4,load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",small_model_name="small_model",load_model=None):
-        self.input_shape = input_shape
-        self.is_built = False
-        self.learning_rate = learning_rate
-        self.steps_per_epoch = steps_per_epoch
-        self.LOSS_WEIGHTS={
+    def __init__(self,input_shape,dataset,epochs=10,batch_size=32,learning_rate=1e-4,
+        load_db=False,resume=False,steps_per_epoch=100,large_model_name="large_model",
+        small_model_name="small_model",load_model=None,
+        loss_weights = {
             "age": 0.5,
             "gender" : 0.3,
             "detection": 1,
@@ -139,6 +137,12 @@ class AllInOneNetwork(object):
             "smile": 10,
             "eye_glasses": 0.5
         }
+        ):
+        self.input_shape = input_shape
+        self.is_built = False
+        self.learning_rate = learning_rate
+        self.steps_per_epoch = steps_per_epoch
+        self.LOSS_WEIGHTS= loss_weights
         self.epochs = epochs
         self.batch_size = batch_size
         self.resume = resume
@@ -324,7 +328,7 @@ class AllInOneNetwork(object):
             self.dataset.load_dataset()
         assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
         ageGenderModel = self.get_model_with_labels(["age_estimation","gender_probablity"])
-        ageGenderModel.compile(loss = [relative_mse_loss, keras.losses.categorical_crossentropy],loss_weights=[0.01,1],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
+        ageGenderModel.compile(loss = [relative_mse_loss, keras.losses.categorical_crossentropy],loss_weights=[self.LOSS_WEIGHTS["age"],self.LOSS_WEIGHTS["gender"]],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         ageGenderModel.summary()
 
         X_test = self.dataset.test_dataset_images
