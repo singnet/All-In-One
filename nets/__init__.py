@@ -84,7 +84,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
             self.model.save_weights("models/last_weight.h5")
             self.current_model_number+=1
             self.last_loss = current_val_loss
-            with open("logs.txt","a+") as logfile:
+            with open("logs/logs.txt","a+") as logfile:
                 logfile.write("________________________________________________________\n")
                 logfile.write("EPOCH    =")
                 logfile.write(str(epoch)+"\n")
@@ -313,7 +313,7 @@ class AllInOneNetwork(object):
             print("remaining epochs",REMAINING_EPOCHS)
         if REMAINING_EPOCHS < 0:
             REMAINING_EPOCHS =1
-        with open("log.txt","a+") as logfile:
+        with open("logs.txt","a+") as logfile:
             str_date = datetime.now().strftime("%d, %b, %Y %H:%M:%S")
             logfile.write("Starting to train model\n")
             logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
