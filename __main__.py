@@ -59,7 +59,7 @@ def main():
             "visiblity": args.visibility_loss_weight,
             "pose": args.pose_loss_weight,
             "landmarks": args.landmarks_loss_weight,
-            "identity": args.identity,
+            "identity": args.identity_loss_weight,
             "smile": args.smile_loss_weight,
             "eye_glasses": args.eye_glasses_loss_weight
         }
