@@ -17,7 +17,7 @@ def get_dataset(name,dataset_dir):
     if name=="celeba":
         return CelebAAlignedDataset(dataset_dir=dataset_dir,labels=["Smiling"])
     elif name=="imdb" or name=="wiki":
-        return ImdbWikiDataset(dataset_dir,image_shape=(227,227,3),dataset="wiki",labels=["Age","Gender"])
+        return ImdbWikiDataset(dataset_dir,image_shape=(227,227,3),dataset=name,labels=["Age","Gender"])
 def main():
     parser = argparse.ArgumentParser()
     # --mtype is model type argument. it can be either 'np'(neutral vs positive emotion classifier) or 'ava'(All basic
