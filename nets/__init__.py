@@ -53,7 +53,7 @@ class LambdaUpdateCallBack(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs={}):
         global LAMDA
         if LAMDA<1:
-            LAMDA +=5e-6
+            LAMDA +=5e-2
         return
 class CustomModelCheckPoint(keras.callbacks.Callback):
     def __init__(self,**kargs):
@@ -338,9 +338,12 @@ class AllInOneNetwork(object):
         y_test = [age_test,gender_test]
         if self.resume:
             checkPoint = self.resume_model()
-            callbacks = [checkPoint]
+            callbacks = [checkPoint,LambdaUpdateCallBack()]
         else:
-            callbacks = [CustomModelCheckPoint()]
+            callbacks = [CustomModelCheckPoint(),LambdaUpdateCallBack()]
+        for layer in ageGenderModel.layers:
+            if layer.name not in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
+                layer.trainable=False
         ageGenderModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = ageGenderModel.evaluate(X_test,y_test)
@@ -364,6 +367,9 @@ class AllInOneNetwork(object):
             callbacks = [checkPoint]
         else:
             callbacks = [CustomModelCheckPoint()]
+        for layer in smileModel.layers:
+            if layer.name!="smile" and layer.name!="dense_14":
+                layer.trainable=False
         smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = smileModel.evaluate(X_test,y_test)
