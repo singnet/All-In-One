@@ -328,6 +328,9 @@ class AllInOneNetwork(object):
             self.dataset.load_dataset()
         assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
         ageGenderModel = self.get_model_with_labels(["age_estimation","gender_probablity"])
+        for layer in ageGenderModel.layers:
+            if layer.name not in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
+                layer.trainable=False
         ageGenderModel.compile(loss = [age_loss, keras.losses.categorical_crossentropy],loss_weights=[self.LOSS_WEIGHTS["age"],self.LOSS_WEIGHTS["gender"]],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         ageGenderModel.summary()
 
@@ -341,9 +344,7 @@ class AllInOneNetwork(object):
             callbacks = [checkPoint,LambdaUpdateCallBack()]
         else:
             callbacks = [CustomModelCheckPoint(),LambdaUpdateCallBack()]
-        for layer in ageGenderModel.layers:
-            if layer.name not in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
-                layer.trainable=False
+        
         ageGenderModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = ageGenderModel.evaluate(X_test,y_test)
@@ -356,6 +357,9 @@ class AllInOneNetwork(object):
             self.dataset.load_dataset()
         assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
         smileModel = self.get_model_with_labels(["smile"])
+        for layer in smileModel.layers:
+            if layer.name!="smile" and layer.name!="dense_14":
+                layer.trainable=False
         smileModel.compile(loss = keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         smileModel.summary()
         
@@ -367,9 +371,7 @@ class AllInOneNetwork(object):
             callbacks = [checkPoint]
         else:
             callbacks = [CustomModelCheckPoint()]
-        for layer in smileModel.layers:
-            if layer.name!="smile" and layer.name!="dense_14":
-                layer.trainable=False
+        
         smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = smileModel.evaluate(X_test,y_test)
