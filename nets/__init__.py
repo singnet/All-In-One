@@ -341,9 +341,13 @@ class AllInOneNetwork(object):
             callbacks = [checkPoint,LambdaUpdateCallBack()]
         else:
             callbacks = [CustomModelCheckPoint(),LambdaUpdateCallBack()]
-        for layer in ageGenderModel.layers:
-            if layer.name not in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
-                layer.trainable=False
+        for i in range(len(ageGenderModel.layers)):
+            if ageGenderModel.layers[i].name in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
+                ageGenderModel.layers[i].trainable = True
+		print ageGenderModel.layers[i].name, "trainable == True"
+            else:
+		print ageGenderModel.layers[i], "trainable  == False"
+		ageGenderModel.layers[i].trainable = False
         ageGenderModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = ageGenderModel.evaluate(X_test,y_test)
@@ -367,9 +371,11 @@ class AllInOneNetwork(object):
             callbacks = [checkPoint]
         else:
             callbacks = [CustomModelCheckPoint()]
-        for layer in smileModel.layers:
-            if layer.name!="smile" and layer.name!="dense_14":
-                layer.trainable=False
+        for i in range(len(smileModel.layers)):
+            if smileModel.layers[i].name not in ["smile" ,"dense_14"]:
+                smileModel.layers[i].trainable=False
+            else:
+		smileModel.layers[i].trainable = True
         smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = smileModel.evaluate(X_test,y_test)
