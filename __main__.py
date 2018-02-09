@@ -42,6 +42,7 @@ def main():
     parser.add_argument("--landmarks_loss_weight",default=1,type=float)
     parser.add_argument("--identity_loss_weight",default=1,type=float)
     parser.add_argument("--eye_glasses_loss_weight",default=1,type=float)
+    parser.add_argument("--freeze",default=False,type=bool)
 
 
     args = parser.parse_args()
@@ -67,7 +68,7 @@ def main():
     datasetClass = get_dataset(args.dataset,args.images_path)
     datasetClass.load_dataset()
     net = AllInOneNetwork((227,227,3),datasetClass,epochs=args.epochs,batch_size= args.batch_size,learning_rate=args.lr,load_db=args.load_db,resume=args.resume,
-        steps_per_epoch=args.steps,large_model_name=args.ol,small_model_name=args.os,load_model=args.load_model,loss_weights=loss_weights)
+        steps_per_epoch=args.steps,large_model_name=args.ol,small_model_name=args.os,load_model=args.load_model,loss_weights=loss_weights,freeze=args.freeze)
     net.train()
 
 if __name__== "__main__":

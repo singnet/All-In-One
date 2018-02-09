@@ -136,7 +136,8 @@ class AllInOneNetwork(object):
             "identity": 0.7,
             "smile": 10,
             "eye_glasses": 0.5
-        }
+        },
+        freeze=False
         ):
         self.input_shape = input_shape
         self.is_built = False
@@ -160,6 +161,7 @@ class AllInOneNetwork(object):
             except:
                 Log.DEBUG("Unable to load from "+load_model)
             Log.DEBUG_OUT =False
+        self.freeze = freeze
     def save_model_to_json(self,path):
         model_json = self.model.to_json()
         with open(path,"w+") as json_file:
@@ -328,9 +330,14 @@ class AllInOneNetwork(object):
             self.dataset.load_dataset()
         assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
         ageGenderModel = self.get_model_with_labels(["age_estimation","gender_probablity"])
-        for layer in ageGenderModel.layers:
-            if layer.name not in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
-                layer.trainable=False
+        if self.freeze:
+            for i in range(len(ageGenderModel.layers)):
+                if ageGenderModel.layers[i].name in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
+                    ageGenderModel.layers[i].trainable = True
+                    print ageGenderModel.layers[i].name, "trainable == True"
+                else:
+                    print ageGenderModel.layers[i], "trainable  == False"
+                    ageGenderModel.layers[i].trainable = False
         ageGenderModel.compile(loss = [age_loss, keras.losses.categorical_crossentropy],loss_weights=[self.LOSS_WEIGHTS["age"],self.LOSS_WEIGHTS["gender"]],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         ageGenderModel.summary()
 
@@ -344,13 +351,7 @@ class AllInOneNetwork(object):
             callbacks = [checkPoint,LambdaUpdateCallBack()]
         else:
             callbacks = [CustomModelCheckPoint(),LambdaUpdateCallBack()]
-        for i in range(len(ageGenderModel.layers)):
-            if ageGenderModel.layers[i].name in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
-                ageGenderModel.layers[i].trainable = True
-                print ageGenderModel.layers[i].name, "trainable == True"
-            else:
-		        print ageGenderModel.layers[i], "trainable  == False"
-		        ageGenderModel.layers[i].trainable = False
+        
         ageGenderModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = ageGenderModel.evaluate(X_test,y_test)
@@ -363,11 +364,12 @@ class AllInOneNetwork(object):
             self.dataset.load_dataset()
         assert self.dataset.dataset_loaded ==True, "Dataset is not loaded"
         smileModel = self.get_model_with_labels(["smile"])
-        for i in range(len(smileModel.layers)):
-            if smileModel.layers[i].name not in ["smile" ,"dense_14"]:
-                smileModel.layers[i].trainable=False
-            else:
-		    smileModel.layers[i].trainable = True
+        if self.freeze:
+            for i in range(len(smileModel.layers)):
+                if smileModel.layers[i].name not in ["smile" ,"dense_14"]:
+                    smileModel.layers[i].trainable=False
+                else:
+                    smileModel.layers[i].trainable = True
         smileModel.compile(loss = keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         smileModel.summary()
         
