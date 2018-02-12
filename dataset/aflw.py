@@ -78,7 +78,15 @@ class AflwDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded train, test and validation dataset")
             Log.DEBUG_OUT =False
-            self.test_dataset = self.test_dataset[:200]
+            test_indexes = np.arange(len(self.test_dataset))
+            np.random.shuffle(test_indexes)
+            validation_indexes = np.arange(len(self.validation_dataset))
+            np.random.shuffle(validation_indexes)
+
+            self.test_dataset = self.test_dataset.iloc[test_indexes].reset_index(drop=True)
+            self.validation_dataset = self.validation_dataset.iloc[validation_indexes].reset_index(drop=True)
+
+            self.test_dataset = self.test_dataset[:1000]
             self.validation_dataset = self.validation_dataset[:100]
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading test images")
