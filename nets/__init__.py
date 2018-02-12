@@ -150,7 +150,7 @@ class AllInOneNetwork(object):
         self.large_model_name = large_model_name
         self.small_model_name = small_model_name
         self.model = self.build()
-        self.save_model_to_json("models/all-in-one-model1.json")
+        # self.save_model_to_json("models/all-in-one-model1.json")
         self.dataset = dataset
         if(load_model!=None and os.path.exists(load_model)):
             Log.DEBUG_OUT = True
@@ -388,6 +388,22 @@ class AllInOneNetwork(object):
             log_file.write(str(score))
         self.model.save_weights("models/"+self.large_model_name+".h5")
         smileModel.save_weights("models/"+self.small_model_name+".h5")
+    def train_age_network(self):
+        pass
+    def train_gender_network(self):
+        pass
+    def train_smile_network(self):
+        pass
+    def train_face_detection_network(self):
+        pass
+    def train_key_points_localization_network(self):
+        pass
+    def train_key_points_visiblity_network(self):
+        pass
+    def train_pose_network(self):
+        pass
+    def train_face_recognition_network(self):
+        pass
     def train(self):
         if type(self.dataset) == CelebAAlignedDataset:
             self.train_celebA()
