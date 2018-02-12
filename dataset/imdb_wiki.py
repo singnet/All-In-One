@@ -160,3 +160,5 @@ class ImdbWikiDataset(Dataset):
         "score":face_score,"second_face_score":second_face_score,"Age":age,"face_location":face_location})
 
         return df
+    def get_dataset_name(self):
+        return self.dataset

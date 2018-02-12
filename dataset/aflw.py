@@ -2,13 +2,19 @@ from dataset import Dataset
 import sqlite3
 import dlib
 import cv2
+import os
+import numpy as np
+import pandas as pd
+from loggers import Log
+
 
 class AflwDataset(Dataset):
     """Class that abstracts Aflw dataset.
     """
 
-    def __init__(self,dataset_dir,image_shape):
-        self.conn = sqlite3.connect("/home/mtk/dataset/aflw-files/aflw/data/aflw.sqlite")
+    def __init__(self,config):
+        # self.conn = sqlite3.connect("/home/mtk/dataset/aflw-files/aflw/data/aflw.sqlite")
+        super(AflwDataset,self).__init__(config)
     
     """ method that resizes image to the same resolution
     image which have width and height equal or less than 
@@ -52,15 +58,102 @@ class AflwDataset(Dataset):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     def load_dataset(self):
-        raise NotImplementedError("Not implmented!")
+        if self.config.label == "detection":
+            if not self.contain_dataset_files():
+                self.meet_convention()
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loading pickle files")
+            Log.DEBUG_OUT =False
+            self.train_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"train.pkl"))
+            self.test_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"test.pkl"))
+            if os.path.exists(os.path.join(self.config.dataset_dir,"validation.pkl")):
+                self.validation_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"validation.pkl"))
+            else:
+                self.validation_dataset = None
+                frameinfo = getframeinfo(currentframe())
+                Log.WARNING("Unable to find validation dataset",file_name=__name__,line_number=frameinfo.lineno)
+            self.train_dataset = self.fix_labeling_issue(self.train_dataset)
+            self.test_dataset = self.fix_labeling_issue(self.test_dataset)
+            self.validation_dataset = self.fix_labeling_issue(self.validation_dataset)
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loaded train, test and validation dataset")
+            Log.DEBUG_OUT =False
+            self.test_dataset = self.test_dataset[:200]
+            self.validation_dataset = self.validation_dataset[:100]
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loading test images")
+            Log.DEBUG_OUT =False
+            self.test_dataset_images = self.load_images(self.test_dataset).astype(np.float32)/255
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loading validation images")
+            Log.DEBUG_OUT =False
+            self.validation_dataset_images = self.load_images(self.validation_dataset).astype(np.float32)/255
+            self.test_detection = self.test_dataset["is_face"].as_matrix()
+            self.dataset_loaded = True
+            Log.DEBUG_OUT = True
+            Log.DEBUG("Loaded all dataset and images")
+            Log.DEBUG_OUT =False
+            
+        
+        else:
+            raise NotImplementedError("Not implemented for labels:"+str(self.labels))
     def generator(self,batch_size):
         raise NotImplementedError("Not implmented!")
+    def detection_data_genenerator(self,batch_size):
+        while True:
+            indexes = np.arange(len(self.train_dataset))
+            np.random.shuffle(indexes)
+            for i in range(0,len(indexes)-batch_size,batch_size):
+                current_indexes = indexes[i:i+batch_size]
+                current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
+                current_images = self.load_images(current_dataframe)
+                X = current_images.astype(np.float32)/255
+                detection = self.get_column(current_dataframe,"is_face").astype(np.uint8)
+                detection = np.eye(2)[detection]
+                yield X,detection
     def load_images(self,dataframe):
-        raise NotImplementedError("Not implmented!")
+        output_images = np.zeros((len(dataframe),self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2]))
+        for index,row in dataframe.iterrows():
+            file_location = row["file_location"]
+            img = cv2.imread(file_location)
+            if img is None:
+                print("Unable to read image from ",file_location)
+                continue
+            img = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
+            output_images[index] = img
+        return output_images
     def meet_convention(self):
-        raise NotImplementedError("Not implmented!")
+        if self.contain_dataset_files():
+            return
+        elif os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
+            dataframe = pd.read_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
+            train,test,validation = self.split_train_test_validation(dataframe)
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
+        else:
+            dataframe = self.load_face_non_face_dataset()
+            train,test,validation = self.split_train_test_validation(dataframe)
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))      
+            dataframe.to_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
+    def load_face_non_face_dataset(self):
+        output_file_locations = []
+        output_is_face = []
+        for img_path in os.listdir(os.path.join(self.config.dataset_dir,"face")):
+            output_file_locations+=[os.path.join(self.config.dataset_dir,"face",img_path)]
+            output_is_face+=[1]
+        for img_path in os.listdir(os.path.join(self.config.dataset_dir,"non-face")):
+            output_file_locations+=[os.path.join(self.config.dataset_dir,"non-face",img_path)]
+            output_is_face+=[0]
+        output_df = pd.DataFrame(columns=["file_location","is_face"])
+        output_df["file_location"] = output_file_locations
+        output_df["is_face"] = output_is_face
+        return output_df
+
     def fix_labeling_issue(self,dataset):
-        raise NotImplementedError("Not implmented!")
+        return dataset
     def rect_intersection(self,rect1,rect2):
         x_overlap = max(0, min(rect1[2], rect2[2]) - max(rect1[0], rect2[0]));
         y_overlap = max(0, min(rect1[3], rect2[3]) - max(rect1[1], rect2[1]));
@@ -93,7 +186,8 @@ class AflwDataset(Dataset):
             return 0
         iou = intr / float(runion)
         return iou
-
+    def get_dataset_name(self):
+        return "aflw"
 class Rect(object):
     def __init__(self,x,y,w,h):
         self.x = x

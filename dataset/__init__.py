@@ -30,11 +30,10 @@ class Dataset(object):
         if the dataset path does not exist.
     """
 
-    def __init__(self,dataset_dir,image_shape=(227,227,3)):
-        assert os.path.exists(dataset_dir),"Dataset directory: '"+dataset_dir+"' does not exist"
+    def __init__(self,config):
+        assert os.path.exists(config.dataset_dir),"Dataset directory: '"+config.dataset_dir+"' does not exist"
         self.dataset_loaded = False
-        self.dataset_dir = dataset_dir
-        self.image_shape = image_shape
+        self.config = config
     """Loads train,test and validation datasets from files inside directory dataset_dir.
     load_dataset method should set dataset_loaded to True after sucessfully loaded the dataset.
     The method should check if train.pkl and test.pkl files exists. 
@@ -106,14 +105,14 @@ class Dataset(object):
     """
 
     def contain_dataset_files(self):
-        if not os.path.exists(os.path.join(self.dataset_dir,"all.pkl")):
-            print "Failed to met convention","all.pkl is not inside:"+self.dataset_dir
+        if not os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
+            print "Failed to met convention","all.pkl is not inside:"+self.config.dataset_dir
             return False
-        elif not os.path.exists(os.path.join(self.dataset_dir,"train.pkl")):
-            print "Failed to met convention","train.pkl is not inside:"+self.dataset_dir
+        if not os.path.exists(os.path.join(self.config.dataset_dir,"train.pkl")):
+            print "Failed to met convention","train.pkl is not inside:"+self.config.dataset_dir
             return False
-        elif not os.path.exists(os.path.join(self.dataset_dir,"test.pkl")):
-            print "Failed to met convention","test.pkl is not inside:"+self.dataset_dir
+        if not os.path.exists(os.path.join(self.config.dataset_dir,"test.pkl")):
+            print "Failed to met convention","test.pkl is not inside:"+self.config.dataset_dir
             return False
         return True;
     @abstractmethod
@@ -140,3 +139,6 @@ class Dataset(object):
             return dataframe[column].as_matrix()
         else:
             raise KeyError("dataframe does not contain column '"+label+"'")
+    @abstractmethod
+    def get_dataset_name(self):
+        pass

@@ -1,0 +1,5 @@
+- Logging to file
+    - when start training model
+    - when saving model
+- Logging to stdout
+- Use only validation data while traing and test data when evaluating model

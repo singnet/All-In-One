@@ -142,4 +142,6 @@ class CelebAAlignedDataset(Dataset):
         for label in self.labels:
             output[label] = output[label]/2.0 + 1/2.0
         return output
+    def get_dataset_name(self):
+        return "celeba"
 
