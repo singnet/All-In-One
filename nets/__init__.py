@@ -126,6 +126,12 @@ class AllInOneNetwork(object):
         self.model.model.save_weights("models/"+self.config.large_model_name+".h5")
         model.save_weights("models/"+self.config.small_model_name+".h5")
         print("Score:",score)
+        with open("logs/logs.txt", "a+") as log_file:
+            log_file.write("----------------------------------------\n")
+            log_file.write("large model _name:"+(self.config.large_model_name)+"\n")
+            log_file.write("small model _name:"+(self.config.small_model_name)+"\n")
+            log_file.write("Score: "+str(score))
+            log_file.write("________________________________________\n")
     
     def train_age_network(self):
         age_model = self.model.get_model_with_labels(["age_estimation"])
@@ -145,12 +151,7 @@ class AllInOneNetwork(object):
         )
         score = age_model.evaluate(X_test,age_test)
         self.save_model(age_model,score)
-        with open("logs/logs.txt", "a+") as log_file:
-            log_file.write("----------------------------------------")
-            log_file.write("large model _name:"+(self.config.large_model_name)+"\n")
-            log_file.write("small model _name:"+(self.config.small_model_name)+"\n")
-            log_file.write("Score: "+str(score))
-            log_file.write("________________________________________")
+        
         
     def train_gender_network(self):
         gender_model = self.model.get_model_with_labels(["gender_probablity"])
