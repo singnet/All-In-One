@@ -17,6 +17,7 @@ from loggers import Log
 from nets.model import AllInOneModel
 from   util import DatasetType
 from nets.callbacks import LambdaUpdateCallBack,CustomModelCheckPoint
+from nets.loss_functions import age_loss
 
 
 class AllInOneNetwork(object):
@@ -174,7 +175,7 @@ class AllInOneNetwork(object):
                 validation_data = [X_test,detection_test],
                 callbacks = callbacks
         )
-        score = face_detection_model.evaluate(X_test,age_test)
+        score = face_detection_model.evaluate(X_test,detection_test)
         self.save_model(face_detection_model,score)
     def train_key_points_localization_network(self):
         pass
