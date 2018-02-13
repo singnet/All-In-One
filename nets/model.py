@@ -8,6 +8,7 @@ from keras import backend as K
 
 from sklearn.model_selection import train_test_split
 import json
+from nets.layers import RoundLayer
 
 class AllInOneModel(object):
     def __init__(self,input_shape):
@@ -65,8 +66,8 @@ class AllInOneModel(object):
         age_drop1 = Dropout(0.2)(age_estimation1)
         age_estimation2 = Dense(128,activation="relu")(age_drop1)
         age_drop2  = Dropout(0.2)(age_estimation2)
-        age_estimation3 = Dense(1,activation="linear",name="age_estimation")(age_drop2)
-        # age_estimation4 = RoundLayer(name="age_estimation")(age_estimation3)
+        age_estimation3 = Dense(1,activation="linear")(age_drop2)
+        age_estimation4 = RoundLayer(name="age_estimation")(age_estimation3)
         # gender probablity
 
         gender_probablity1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
@@ -126,7 +127,7 @@ class AllInOneModel(object):
 
         model = Model(inputs=input_layer,
                         outputs=[detection_probability2,key_point_visibility_2, key_points2,pose2,smile2,
-                                gender_probablity3,age_estimation3,face_reco,young_3,eye_glasses2,
+                                gender_probablity3,age_estimation4,face_reco,young_3,eye_glasses2,
                                 mouse_slightly_open2
                                 ])
         

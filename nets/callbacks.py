@@ -9,7 +9,7 @@ class LambdaUpdateCallBack(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs={}):
         global LAMDA
         if LAMDA<1:
-            LAMDA +=5e-2
+            LAMDA +=5e-5
         return
 class CustomModelCheckPoint(keras.callbacks.Callback):
     def __init__(self,**kargs):
