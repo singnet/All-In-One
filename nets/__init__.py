@@ -128,7 +128,7 @@ class AllInOneNetwork(object):
     
     def train_age_network(self):
         age_model = self.model.get_model_with_labels(["age_estimation"])
-        dataset = self.config.dataset
+        dataset = self.getDatasetFromString(self.config)
         if not dataset.dataset_loaded:
             dataset.load_dataset()
         X_test = dataset.test_dataset_images

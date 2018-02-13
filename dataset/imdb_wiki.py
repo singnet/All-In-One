@@ -24,10 +24,10 @@ class ImdbWikiDataset(Dataset):
         if the dataset path does not exist.
     """
 
-    def __init__(self,dataset_dir,image_shape=(227,227,3),dataset = "wiki",labels=["Age","Gender"]):
-        super(ImdbWikiDataset,self).__init__(dataset_dir,image_shape)
+    def __init__(self,config,labels=["Age","Gender"]):
+        super(ImdbWikiDataset,self).__init__(config)
         self.labels = labels
-        self.dataset=dataset
+        self.dataset=config.dataset
     def load_dataset(self):
         if set(self.labels).issubset(["Age","Gender"]):
             if not self.contain_dataset_files():
@@ -35,10 +35,10 @@ class ImdbWikiDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading pickle files")
             Log.DEBUG_OUT =False
-            self.train_dataset = self.get_meta(os.path.join(self.dataset_dir,"train.pkl"))
-            self.test_dataset = self.get_meta(os.path.join(self.dataset_dir,"test.pkl"))
-            if os.path.exists(os.path.join(self.dataset_dir,"validation.pkl")):
-                self.validation_dataset = self.get_meta(os.path.join(self.dataset_dir,"validation.pkl"))
+            self.train_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"train.pkl"))
+            self.test_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"test.pkl"))
+            if os.path.exists(os.path.join(self.config.dataset_dir,"validation.pkl")):
+                self.validation_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"validation.pkl"))
             else:
                 self.validation_dataset = None
                 frameinfo = getframeinfo(currentframe())
@@ -74,34 +74,34 @@ class ImdbWikiDataset(Dataset):
         else:
             assert type(dataframe) == pd.core.frame.DataFrame, "argument to load image should be dataframe"
             assert  "file_location" in dataframe.columns, "dataframe should contain file_location column"
-            output_images = np.zeros((len(dataframe),self.image_shape[0],self.image_shape[1],self.image_shape[2]))
+            output_images = np.zeros((len(dataframe),self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2]))
             for index,row in dataframe.iterrows():
-                img = cv2.imread(os.path.join(self.dataset_dir,row["file_location"][0]))
+                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"][0]))
 
                 if img is None:
-                    Log.WARNING("Unable to read images from "+os.path.join(self.dataset_dir,row["file_location"][0]))
+                    Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"][0]))
                     continue
                 face_location = row["face_location"][0].astype(int) 
                 face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
-                face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1]))
+                face_image = cv2.resize(face_image,(self.config.image_shape[0],self.config.image_shape[1]))
                 output_images[index] = face_image
             return output_images
     def meet_convention(self):
         if self.contain_dataset_files():
             return
-        elif os.path.exists(os.path.join(self.dataset_dir,"all.pkl")):
-            dataframe = pd.read_pickle(os.path.join(self.dataset_dir,"all.pkl"))
+        elif os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
+            dataframe = pd.read_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.dataset_dir,"test.pkl"))      
-            validation.to_pickle(os.path.join(self.dataset_dir,"validation.pkl"))
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
         else:
-            dataframe = self.load_from_mat(os.path.join(self.dataset_dir,self.dataset+".mat"))
+            dataframe = self.load_from_mat(os.path.join(self.config.dataset_dir,self.dataset+".mat"))
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.dataset_dir,"test.pkl"))      
-            validation.to_pickle(os.path.join(self.dataset_dir,"validation.pkl"))      
-            dataframe.to_pickle(os.path.join(self.dataset_dir,"all.pkl"))
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))      
+            dataframe.to_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
 
     def generator(self,batch_size=32):
         while True:
@@ -116,6 +116,30 @@ class ImdbWikiDataset(Dataset):
                 gender = self.get_column(current_dataframe,"Gender").astype(np.uint8)
                 gender = np.eye(2)[gender]
                 yield X,[age,gender]
+    def age_data_genenerator(self,batch_size):
+        while True:
+            indexes = np.arange(len(self.train_dataset))
+            np.random.shuffle(indexes)
+            for i in range(0,len(indexes)-batch_size,batch_size):
+                current_indexes = indexes[i:i+batch_size]
+                current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
+                current_images = self.load_images(current_dataframe)
+                X = current_images.astype(np.float32)/255
+                age = self.get_column(current_dataframe,"Age")
+                
+                yield X,age
+    def gender_data_genenerator(self,batch_size):
+        while True:
+            indexes = np.arange(len(self.train_dataset))
+            np.random.shuffle(indexes)
+            for i in range(0,len(indexes)-batch_size,batch_size):
+                current_indexes = indexes[i:i+batch_size]
+                current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
+                current_images = self.load_images(current_dataframe)
+                X = current_images.astype(np.float32)/255
+                age = self.get_column(current_dataframe,"Gender")
+                
+                yield X,age
     
     
     def fix_labeling_issue(self,dataset):
