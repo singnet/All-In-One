@@ -36,10 +36,12 @@ class AllInOneModel(object):
         pool3 = MaxPooling2D(pool_size=(2, 2))(conv7)
         pool3_flatten = Flatten()(pool3)
         dense1 = Dense(1024,activation="relu")(pool3_flatten)
-        dense2 = Dense(512,activation="relu")(dense1)
+        dropout1 = Dropout(0.2)(dense1)
+        dense2 = Dense(512,activation="relu")(dropout1)
+        dropout2 = Dropout(0.2)(dense2)
 
 
-        face_reco = Dense(10548,activation="softmax",name="face_reco")(dense2)
+        face_reco = Dense(10548,activation="softmax",name="face_reco")(dropout2)
 
         # brach from pool1, conv3 and conv5
         pool1_out_conv = Conv2D(256,kernel_size=(4,4),strides=4,activation="relu")(pool1) 
@@ -53,59 +55,73 @@ class AllInOneModel(object):
         merge_1_conv = Conv2D(256,kernel_size=(1,1),strides=(1, 1),activation="relu")(merge_1)
         merge_1_conv_flatten = Flatten()(merge_1_conv)
         merge_1_dense = Dense(2048,activation="relu")(merge_1_conv_flatten)
+        merge_1_dropout = Dropout(0.2)(merge_1_dense)
 
         #subject dependant layers
         conv6_out_pool = MaxPooling2D(pool_size=(2, 2))(conv6)
         conv6_out_pool_flatten = Flatten()(conv6_out_pool)
         # age estimation layers
         age_estimation1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
-        age_estimation2 = Dense(128,activation="relu")(age_estimation1)
-        age_estimation3 = Dense(1,activation="linear",name="age_estimation")(age_estimation2)
+        age_drop1 = Dropout(0.2)(age_estimation1)
+        age_estimation2 = Dense(128,activation="relu")(age_drop1)
+        age_drop2  = Dropout(0.2)(age_estimation2)
+        age_estimation3 = Dense(1,activation="linear",name="age_estimation")(age_drop2)
         # age_estimation4 = RoundLayer(name="age_estimation")(age_estimation3)
         # gender probablity
 
         gender_probablity1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
-        gender_probablity2 = Dense(128,activation="relu")(gender_probablity1)
-        gender_probablity3 = Dense(2,activation="softmax",name="gender_probablity")(gender_probablity2)
+        gender_drop1 = Dropout(0.2)(gender_probablity1)
+        gender_probablity2 = Dense(128,activation="relu")(gender_drop1)
+        gender_drop2 = Dropout(0.2)(gender_probablity2)
+        gender_probablity3 = Dense(2,activation="softmax",name="gender_probablity")(gender_drop2)
 
        
 
         # Young
         young_1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
-        young_2 = Dense(128,activation="relu")(young_1)
-        young_3 = Dense(2,activation="softmax",name="is_young")(young_2)
+        young_drop1 = Dropout(0.2)(young_1)
+        young_2 = Dense(128,activation="relu")(young_drop1)
+        young_drop2 = Dropout(0.2)(young_2)
+        young_3 = Dense(2,activation="softmax",name="is_young")(young_drop2)
 
         #
         
 
         # face detection    
-        detection_probability1 = Dense(512,activation="relu")(merge_1_dense)
-        detection_probability2 = Dense(2,activation="softmax",name="detection_probablity")(detection_probability1)
+        detection_probability1 = Dense(512,activation="relu")(merge_1_dropout)
+        detection_probability_drop =  Dropout(0.2)(detection_probability1)
+        detection_probability2 = Dense(2,activation="softmax",name="detection_probablity")(detection_probability_drop)
 
         # key points(21) visibility probablity
 
-        key_point_visibility_1 = Dense(512,activation="relu")(merge_1_dense)
-        key_point_visibility_2 = Dense(21,activation="linear",name="key_points_visibility")(key_point_visibility_1)
+        key_point_visibility_1 = Dense(512,activation="relu")(merge_1_dropout)
+        key_point_visibility_drop = Dropout(0.2)(key_point_visibility_1)
+        key_point_visibility_2 = Dense(21,activation="linear",name="key_points_visibility")(key_point_visibility_drop)
 
         # key points(21) location point(x,y) visibility probablity
-        key_points1 = Dense(512,activation="relu")(merge_1_dense)
-        key_points2 = Dense(42,activation="linear",name="key_points")(key_points1)
+        key_points1 = Dense(512,activation="relu")(merge_1_dropout)
+        key_points_drop = Dropout(0.2)(key_points1)
+        key_points2 = Dense(42,activation="linear",name="key_points")(key_points_drop)
 
         # Pose value of the face(roll,pitch,yaw)
-        pose1 = Dense(512,activation="relu")(merge_1_dense)
-        pose2 = Dense(3,activation="linear",name="pose")(pose1)
+        pose1 = Dense(512,activation="relu")(merge_1_dropout)
+        pose_drop = Dropout(0.2)(pose1)
+        pose2 = Dense(3,activation="linear",name="pose")(pose_drop)
 
         # probablity face being smile face
-        smile1 = Dense(512,activation="relu")(merge_1_dense)
-        smile2 = Dense(2,activation="softmax",name="smile")(smile1)
+        smile1 = Dense(512,activation="relu")(merge_1_dropout)
+        smile_drop = Dropout(0.2)(smile1)
+        smile2 = Dense(2,activation="softmax",name="smile")(smile_drop)
 
         # probablity face being smile face
-        eye_glasses1 = Dense(512,activation="relu")(merge_1_dense)
-        eye_glasses2 = Dense(2,activation="softmax",name="eye_glasses")(eye_glasses1)
+        eye_glasses1 = Dense(512,activation="relu")(merge_1_dropout)
+        eye_glasses_drop = Dropout(0.2)(eye_glasses1)
+        eye_glasses2 = Dense(2,activation="softmax",name="eye_glasses")(eye_glasses_drop)
         
         # probablity face being smile face
-        mouse_slightly_open1  = Dense(512,activation="relu")(merge_1_dense)
-        mouse_slightly_open2 = Dense(2,activation="softmax",name="mouse_slightly_open")(mouse_slightly_open1)
+        mouse_slightly_open1  = Dense(512,activation="relu")(merge_1_dropout)
+        mouse_slightly_open_drop = Dropout(0.2)(mouse_slightly_open1)
+        mouse_slightly_open2 = Dense(2,activation="softmax",name="mouse_slightly_open")(mouse_slightly_open_drop)
         
 
         model = Model(inputs=input_layer,
