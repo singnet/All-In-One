@@ -85,7 +85,7 @@ class AllInOneModel(object):
         # key points(21) visibility probablity
 
         key_point_visibility_1 = Dense(512,activation="relu")(merge_1_dense)
-        key_point_visibility_2 = Dense(21,activation="linear",name="kpoints_visibility")(key_point_visibility_1)
+        key_point_visibility_2 = Dense(21,activation="linear",name="key_points_visibility")(key_point_visibility_1)
 
         # key points(21) location point(x,y) visibility probablity
         key_points1 = Dense(512,activation="relu")(merge_1_dense)
