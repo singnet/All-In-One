@@ -143,7 +143,7 @@ class AllInOneNetwork(object):
                 validation_data = [X_test,age_test],
                 callbacks = callbacks
         )
-        score = model.evaluate(X_test,age_test)
+        score = age_model.evaluate(X_test,age_test)
         self.save_model(age_model,score)
         
     def train_gender_network(self):
@@ -165,7 +165,23 @@ class AllInOneNetwork(object):
         score = gender_model.evaluate(X_test,gender_test)
         self.save_model(gender_model,score)
     def train_smile_network(self):
-        pass
+        smile_model = self.model.get_model_with_labels(["smile"])
+        dataset = self.getDatasetFromString(self.config)
+        if not dataset.dataset_loaded:
+            dataset.load_dataset()
+        X_test = dataset.test_dataset_images
+        smile_test = dataset.test_dataset["Smiling"].as_matrix()
+        smile_model.compile(loss = age_loss,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
+        callbacks = [LambdaUpdateCallBack()]
+        smile_model.summary()
+        smile_model.fit_generator(dataset.age_data_genenerator(self.config.batch_size),
+                epochs = self.config.epochs,
+                steps_per_epoch = self.config.steps_per_epoch,
+                validation_data = [X_test,smile_test],
+                callbacks = callbacks
+        )
+        score = model.evaluate(X_test,smile_test)
+        self.save_model(smile_model,score)
     def getDatasetFromString(self, config):
         if self.config.dataset.lower() == "celeba_aligned":
             return CelebAAlignedDataset(self.config) 
