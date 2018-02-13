@@ -136,6 +136,7 @@ class AllInOneNetwork(object):
         age_test = dataset.test_dataset["Age"].as_matrix()
         age_model.compile(loss = age_loss,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
         callbacks = [LambdaUpdateCallBack()]
+        age_model.summary()
         age_model.fit_generator(dataset.age_data_genenerator(self.config.batch_size),
                 epochs = self.config.epochs,
                 steps_per_epoch = self.config.steps_per_epoch,
@@ -146,22 +147,23 @@ class AllInOneNetwork(object):
         self.save_model(age_model,score)
         
     def train_gender_network(self):
-        age_model = self.model.get_model_with_labels(["gender_probablity"])
+        gender_model = self.model.get_model_with_labels(["gender_probablity"])
         dataset = self.getDatasetFromString(self.config)
         if not dataset.dataset_loaded:
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
-        age_test = dataset.test_dataset["Gender"].as_matrix()
-        age_model.compile(loss = age_loss,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
-        callbacks = [LambdaUpdateCallBack()]
-        age_model.fit_generator(dataset.gender_data_genenerator(self.config.batch_size),
+        gender_test = dataset.test_dataset["Gender"].as_matrix()
+        gender_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
+        callbacks = None
+        gender_model.summary()
+        gender_model.fit_generator(dataset.gender_data_genenerator(self.config.batch_size),
                 epochs = self.config.epochs,
                 steps_per_epoch = self.config.steps_per_epoch,
-                validation_data = [X_test,age_test],
+                validation_data = [X_test,gender_test],
                 callbacks = callbacks
         )
-        score = model.evaluate(X_test,age_test)
-        self.save_model(age_model,score)
+        score = gender_model.evaluate(X_test,gender_test)
+        self.save_model(gender_model,score)
     def train_smile_network(self):
         pass
     def getDatasetFromString(self, config):
