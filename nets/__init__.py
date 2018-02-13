@@ -28,7 +28,7 @@ class AllInOneNetwork(object):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading model weights from '"+config.model_weight+"'")
             try:
-                self.model.load_weights(config.model_weight)
+                self.model.model.load_weights(config.model_weight)
                 Log.DEBUG("Loaded model weights")
             except:
                 Log.DEBUG("Unable to load model weight from "+config.model_weight)
@@ -145,6 +145,12 @@ class AllInOneNetwork(object):
         )
         score = age_model.evaluate(X_test,age_test)
         self.save_model(age_model,score)
+        with open("logs/logs.txt", "a+") as log_file:
+            log_file.write("----------------------------------------")
+            log_file.write("large model _name:"+(self.config.large_model_name)+"\n")
+            log_file.write("small model _name:"+(self.config.small_model_name)+"\n")
+            log_file.write("Score: "+str(score))
+            log_file.write("________________________________________")
         
     def train_gender_network(self):
         gender_model = self.model.get_model_with_labels(["gender_probablity"])
