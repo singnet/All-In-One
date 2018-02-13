@@ -131,11 +131,11 @@ class AllInOneNetwork(object):
         dataset = self.config.dataset
         if not dataset.dataset_loaded:
             dataset.load_dataset()
-        X_test = dataset.get_test_images()
-        age_test = dataset.get_test_age()
+        X_test = dataset.test_dataset_images
+        age_test = dataset.test_dataset["Age"].as_matrix()
         age_model.compile(loss = age_loss,optimizer=keras.optimizers.Adam(self.config.getLearRate()),metrics=["accuracy"])
         callbacks = [LambdaUpdateCallBack()]
-        age_model.fit_generator(dataset.age_data_genenerator,
+        age_model.fit_generator(dataset.age_data_genenerator(self.config.batch_size),
                 epochs = self.config.epochs,
                 steps_per_epoch = self.config.steps_per_epoch,
                 validation_data = [X_test,age_test],
@@ -174,8 +174,8 @@ class AllInOneNetwork(object):
                 validation_data = [X_test,detection_test],
                 callbacks = callbacks
         )
-        score = model.evaluate(X_test,age_test)
-        self.save_model(age_model,score)
+        score = face_detection_model.evaluate(X_test,age_test)
+        self.save_model(face_detection_model,score)
     def train_key_points_localization_network(self):
         pass
     def train_key_points_visiblity_network(self):
