@@ -34,10 +34,10 @@ class CelebAAlignedDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading pickle files")
             Log.DEBUG_OUT =False
-            self.train_dataset = self.get_meta(os.path.join(self.dataset_dir,"train.pkl"))
-            self.test_dataset = self.get_meta(os.path.join(self.dataset_dir,"test.pkl"))
-            if os.path.exists(os.path.join(self.dataset_dir,"validation.pkl")):
-                self.validation_dataset = self.get_meta(os.path.join(self.dataset_dir,"validation.pkl"))
+            self.train_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"train.pkl"))
+            self.test_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"test.pkl"))
+            if os.path.exists(os.path.join(self.config.dataset_dir,"validation.pkl")):
+                self.validation_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"validation.pkl"))
             else:
                 self.validation_dataset = None
                 frameinfo = getframeinfo(currentframe())
@@ -72,12 +72,12 @@ class CelebAAlignedDataset(Dataset):
         else:
             assert type(dataframe) == pd.core.frame.DataFrame, "argument to load image should be dataframe"
             assert  "file_location" in dataframe.columns, "dataframe should contain file_location column"
-            output_images = np.zeros((len(dataframe),self.image_shape[0],self.image_shape[1],self.image_shape[2]))
+            output_images = np.zeros((len(dataframe),self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2]))
             for index,row in dataframe.iterrows():
-                img = cv2.imread(os.path.join(self.dataset_dir,row["file_location"]))
+                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"]))
 
                 if img is None:
-                    Log.WARNING("Unable to read images from "+os.path.join(self.dataset_dir,row["file_location"]))
+                    Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"]))
                     continue
                 faces = self.detector(img)
                 for i in range(len(faces)):
@@ -85,7 +85,7 @@ class CelebAAlignedDataset(Dataset):
                         face_location = faces[i]
                         face_image = img[face_location.top():face_location.bottom(),face_location.left():face_location.right()]
                         try:
-                            face_image = cv2.resize(face_image,(self.image_shape[0],self.image_shape[1]))
+                            face_image = cv2.resize(face_image,(self.config.image_shape[0],self.config.image_shape[1]))
                             output_images[index] = face_image
                             break
                         except:
@@ -95,29 +95,29 @@ class CelebAAlignedDataset(Dataset):
                             print (str(face_location.top())+","+ str(face_location.bottom())+","+str(face_location.left())+","+str(face_location.right()))
                             print ("error"+","+str(face_image is None)+","+str(img is None)+","+ str(len(faces)))
                     else:
-                        face_image = cv2.resize(img,(self.image_shape[0],self.image_shape[1]))
+                        face_image = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
                         output_images[index] = face_image
-                        Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.dataset_dir,row["file_location"])+" Loading full image as face")
+                        Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.config.dataset_dir,row["file_location"])+" Loading full image as face")
             return output_images
     def meet_convention(self):
         if self.contain_dataset_files():
             return
-        elif os.path.exists(os.path.join(self.dataset_dir,"all.pkl")):
-            dataframe = pd.read_pickle(os.path.join(self.dataset_dir,"all.pkl"))
+        elif os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
+            dataframe = pd.read_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.dataset_dir,"test.pkl"))      
-            validation.to_pickle(os.path.join(self.dataset_dir,"validation.pkl"))
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
         else:
             dataframe = self.load_dataset_from_annotation_file()
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.dataset_dir,"test.pkl"))      
-            validation.to_pickle(os.path.join(self.dataset_dir,"validation.pkl"))      
-            dataframe.to_pickle(os.path.join(self.dataset_dir,"all.pkl"))
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))      
+            dataframe.to_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
 
     def load_dataset_from_annotation_file(self):
-        annotation_file = os.path.join(self.dataset_dir,"list_attr_celeba.txt")
+        annotation_file = os.path.join(self.config.dataset_dir,"list_attr_celeba.txt")
         headers = ['file_location', '5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young']
         df = pd.read_csv(annotation_file,sep= "\s+|\t+|\s+\t+|\t+\s+",names=headers,header=1)
         return df
