@@ -179,8 +179,9 @@ class AllInOneNetwork(object):
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
         smile_test = dataset.test_dataset["Smiling"].as_matrix()
-        smile_model.compile(loss = age_loss,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
-        callbacks = [LambdaUpdateCallBack()]
+        smile_test  = np.eye(2)[smile_test]
+        smile_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
+        callbacks = None
         smile_model.summary()
         smile_model.fit_generator(dataset.smile_data_generator(self.config.batch_size),
                 epochs = self.config.epochs,
