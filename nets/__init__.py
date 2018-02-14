@@ -178,7 +178,7 @@ class AllInOneNetwork(object):
         if not dataset.dataset_loaded:
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
-        smile_test = dataset.test_dataset["Smiling"].as_matrix()
+        smile_test = dataset.test_dataset["Smiling"].as_matrix().astype(np.uint8)
         smile_test  = np.eye(2)[smile_test]
         smile_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
         callbacks = None
