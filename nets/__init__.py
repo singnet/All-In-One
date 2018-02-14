@@ -189,7 +189,7 @@ class AllInOneNetwork(object):
                 validation_data = [X_test,smile_test],
                 callbacks = callbacks
         )
-        score = model.evaluate(X_test,smile_test)
+        score = smile_model.evaluate(X_test,smile_test)
         self.save_model(smile_model,score)
     def getDatasetFromString(self, config):
         if self.config.dataset.lower() == "celeba":
