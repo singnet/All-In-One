@@ -191,14 +191,14 @@ class AllInOneNetwork(object):
         score = model.evaluate(X_test,smile_test)
         self.save_model(smile_model,score)
     def getDatasetFromString(self, config):
-        if self.config.dataset.lower() == "celeba_aligned":
+        if self.config.dataset.lower() == "celeba":
             return CelebAAlignedDataset(self.config) 
         elif self.config.dataset.lower() == "wiki" or self.config.dataset.lower()=="imdb":
             return ImdbWikiDataset(self.config)
         elif self.config.dataset.lower() == "aflw":
             return AflwDataset(self.config)
         else:
-            raise NotImplementedError("Not implemented for "+str(dataset_name))
+            raise NotImplementedError("Not implemented for "+str(config.dataset))
     def train_face_detection_network(self):
         face_detection_model = self.model.get_model_with_labels(["detection_probablity"])
         dataset = self.getDatasetFromString(self.config)
