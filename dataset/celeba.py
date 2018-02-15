@@ -95,6 +95,7 @@ class CelebAAlignedDataset(Dataset):
                             print (str(face_location.top())+","+ str(face_location.bottom())+","+str(face_location.left())+","+str(face_location.right()))
                             print ("error"+","+str(face_image is None)+","+str(img is None)+","+ str(len(faces)))
                     else:
+                        face_image = cv2.cvtColor(face_image,cv2.COLOR_BGR2GRAY)
                         face_image = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
                         output_images[index] = face_image
                         Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.config.dataset_dir,row["file_location"])+" Loading full image as face")

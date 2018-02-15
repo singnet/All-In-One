@@ -127,6 +127,7 @@ class AflwDataset(Dataset):
             if img is None:
                 print("Unable to read image from ",file_location)
                 continue
+            img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
             img = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
             output_images[index] = img
         return output_images
