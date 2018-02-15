@@ -139,6 +139,7 @@ class AllInOneNetwork(object):
         if not dataset.dataset_loaded:
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
+        X_test = X_test.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
         age_test = dataset.test_dataset["Age"].as_matrix()
         age_model.compile(loss = age_loss,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
         callbacks = [LambdaUpdateCallBack()]
@@ -159,6 +160,7 @@ class AllInOneNetwork(object):
         if not dataset.dataset_loaded:
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
+        X_test = X_test.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
         gender_test = dataset.test_dataset["Gender"].as_matrix().astype(np.uint8)
         gender_test = np.eye(2)[gender_test]
         gender_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
@@ -178,6 +180,7 @@ class AllInOneNetwork(object):
         if not dataset.dataset_loaded:
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
+        X_test = X_test.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
         smile_test = dataset.test_dataset["Smiling"].as_matrix().astype(np.uint8)
         smile_test  = np.eye(2)[smile_test]
         smile_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
@@ -206,6 +209,7 @@ class AllInOneNetwork(object):
         if not dataset.dataset_loaded:
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
+        X_test = X_test.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
         detection_test = dataset.test_detection
         detection_test = np.eye(2)[detection_test]
         face_detection_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])

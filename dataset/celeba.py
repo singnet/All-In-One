@@ -133,6 +133,7 @@ class CelebAAlignedDataset(Dataset):
                 current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
                 current_images = self.load_images(current_dataframe)
                 X = current_images.astype(np.float32)/255
+                X = X.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
                 smile = self.get_column(current_dataframe,"Smiling").astype(np.uint8)
                 smile = np.eye(2)[smile]
                 yield X,smile
