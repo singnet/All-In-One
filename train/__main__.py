@@ -5,7 +5,7 @@ from util import get_cmd_args
 from util import get_config
 import os
 
-INPUT_SIZE = (227,227,)
+INPUT_SIZE = (227,227,1)
 
 
 

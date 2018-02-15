@@ -116,6 +116,7 @@ class AflwDataset(Dataset):
                 current_dataframe = self.train_dataset.iloc[current_indexes].reset_index(drop=True)
                 current_images = self.load_images(current_dataframe)
                 X = current_images.astype(np.float32)/255
+                X = X.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
                 detection = self.get_column(current_dataframe,"is_face").astype(np.uint8)
                 detection = np.eye(2)[detection]
                 yield X,detection
@@ -129,7 +130,7 @@ class AflwDataset(Dataset):
                 continue
             img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
             img = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
-            output_images[index] = img
+            output_images[index] = img.reshape(self.config.image_shape)
         return output_images
     def meet_convention(self):
         if self.contain_dataset_files():

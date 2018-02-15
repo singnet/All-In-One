@@ -85,7 +85,7 @@ class ImdbWikiDataset(Dataset):
                 face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
                 face_image = cv2.cvtColor(face_image,cv2.COLOR_BGR2GRAY)
                 face_image = cv2.resize(face_image,(self.config.image_shape[0],self.config.image_shape[1]))
-                output_images[index] = face_image
+                output_images[index] = face_image.reshape(self.config.image_shape)
             return output_images
     def meet_convention(self):
         if self.contain_dataset_files():

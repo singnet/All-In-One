@@ -85,8 +85,9 @@ class CelebAAlignedDataset(Dataset):
                         face_location = faces[i]
                         face_image = img[face_location.top():face_location.bottom(),face_location.left():face_location.right()]
                         try:
+                            face_image = cv2.cvtColor(face_image,cv2.COLOR_BGR2GRAY)
                             face_image = cv2.resize(face_image,(self.config.image_shape[0],self.config.image_shape[1]))
-                            output_images[index] = face_image
+                            output_images[index] = face_image.reshape(self.config.image_shape)
                             break
                         except:
                             # Log.ERROR_OUT = True
@@ -97,7 +98,7 @@ class CelebAAlignedDataset(Dataset):
                     else:
                         face_image = cv2.cvtColor(face_image,cv2.COLOR_BGR2GRAY)
                         face_image = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
-                        output_images[index] = face_image
+                        output_images[index] = face_image.reshape(self.config.image_shape)
                         Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.config.dataset_dir,row["file_location"])+" Loading full image as face")
             return output_images
     def meet_convention(self):
