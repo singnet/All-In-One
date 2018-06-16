@@ -47,6 +47,7 @@ def images_demo(model,images_dir,detector):
         cv2.imshow("image",image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
 def process_video(model, path,detector):
     cap = cv2.VideoCapture(path)
     while cap.isOpened():
@@ -93,9 +94,11 @@ def process_video(model, path,detector):
             break
     cv2.destroyAllWindows()
     cap.release()
+
 def webcam_demo(model,detector):
     process_video(model,-1,detector)
-def video_dem(model,vidoe_path,detector):
+
+def video_demo(model,vidoe_path,detector):
     process_video(model,vidoe_path,detector)
 
 
@@ -107,7 +110,7 @@ def main():
     # print "loaded model"
     # detector = dlib.get_frontal_face_detector()
     # images_demo(model,"/home/mtk/iCog/test-images/",detector)
-    # 
+    #
     # webcam_demo(model,detector)
     # video_dem(model,"/home/mtk/iCog/projects/emopy/test-videos/75Emotions.mp4",detector)
     selective_search_demo()

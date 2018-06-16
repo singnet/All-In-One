@@ -2,8 +2,8 @@ from keras.models import model_from_json,Model
 import os
 from scipy.io import loadmat
 import cv2
-import numpy as np 
-import pandas as pd 
+import numpy as np
+import pandas as pd
 
 
 def get_layer(model,name):
@@ -18,7 +18,7 @@ def load_model(model_json_path,model_h5_path,layer_names):
         layer_output = []
         for lname in layer_names:
             layer_output+= [get_layer(model,lname).output]
-        
+
         output = Model(inputs=model.inputs,output=layer_output)
         return output
 def selective_search_demo():
@@ -31,7 +31,7 @@ def selective_search_demo():
         image = cv2.imread(os.path.join(dataset_dir, "TrainImages",str(index+1)+".jpg"))
         bbox = bboxesTr[index]
         image = cv2.rectangle(image,(bbox[0],bbox[0]+ bbox[2]),(bbox[1],bbox[1]+bbox[3]),(255,255,0))
-        # print 
+        # print
         cv2.imshow("Image",image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()

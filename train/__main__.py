@@ -15,12 +15,12 @@ def main():
         print "image path given does not exists"
         exit(0)
     if not args.dataset.lower() in ["wiki","imdb", "celeba","aflw"]:
-        print "currently implemented for only wiki, imdb,aflw and celeba datasets"
+        print "currently implemented for only wiki, imdb, aflw and celeba datasets"
         exit(0)
     config = get_config(args)
     net = AllInOneNetwork(config)
     net.train()
-    
+
 
 if __name__=="__main__":
     main()

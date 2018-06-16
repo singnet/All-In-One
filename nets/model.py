@@ -17,7 +17,7 @@ class AllInOneModel(object):
         self.model = self.build()
     def build(self):
         input_layer = Input(shape=self.input_shape)
-       
+
         conv1 = Conv2D(96,kernel_size=(11,11),strides=4,activation="relu")(input_layer)
         norm1 = BatchNormalization()(conv1)
         pool1 = MaxPooling2D(pool_size=(2,2))(norm1)
@@ -44,8 +44,8 @@ class AllInOneModel(object):
 
         face_reco = Dense(10548,activation="softmax",name="face_reco")(dropout2)
 
-        # brach from pool1, conv3 and conv5
-        pool1_out_conv = Conv2D(256,kernel_size=(4,4),strides=4,activation="relu")(pool1) 
+        # branch from pool1, conv3 and conv5
+        pool1_out_conv = Conv2D(256,kernel_size=(4,4),strides=4,activation="relu")(pool1)
         conv3_out_conv = Conv2D(256,kernel_size=(2,2),strides=2,activation="relu")(conv3)
         conv5_out_pool = MaxPooling2D(pool_size=(2, 2))(conv5)
         # print "pool1_out_conv",pool1_out_conv.shape
@@ -76,7 +76,7 @@ class AllInOneModel(object):
         gender_drop2 = Dropout(0.2)(gender_probablity2)
         gender_probablity3 = Dense(2,activation="softmax",name="gender_probablity")(gender_drop2)
 
-       
+
 
         # Young
         young_1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
@@ -86,9 +86,9 @@ class AllInOneModel(object):
         young_3 = Dense(2,activation="softmax",name="is_young")(young_drop2)
 
         #
-        
 
-        # face detection    
+
+        # face detection
         detection_probability1 = Dense(512,activation="relu")(merge_1_dropout)
         detection_probability_drop =  Dropout(0.2)(detection_probability1)
         detection_probability2 = Dense(2,activation="softmax",name="detection_probablity")(detection_probability_drop)
@@ -118,26 +118,28 @@ class AllInOneModel(object):
         eye_glasses1 = Dense(512,activation="relu")(merge_1_dropout)
         eye_glasses_drop = Dropout(0.2)(eye_glasses1)
         eye_glasses2 = Dense(2,activation="softmax",name="eye_glasses")(eye_glasses_drop)
-        
+
         # probablity face being smile face
         mouse_slightly_open1  = Dense(512,activation="relu")(merge_1_dropout)
         mouse_slightly_open_drop = Dropout(0.2)(mouse_slightly_open1)
         mouse_slightly_open2 = Dense(2,activation="softmax",name="mouse_slightly_open")(mouse_slightly_open_drop)
-        
+
 
         model = Model(inputs=input_layer,
                         outputs=[detection_probability2,key_point_visibility_2, key_points2,pose2,smile2,
                                 gender_probablity3,age_estimation4,face_reco,young_3,eye_glasses2,
                                 mouse_slightly_open2
                                 ])
-        
+
         self.is_built = True;
         return model
+
     def save_model_to_json(self,path):
         model_json = self.model.to_json()
         with open(path,"w+") as json_file:
             json_file.write(model_json)
             print "Saved model"
+            
     def get_layer(self,name):
         for layer in self.model.layers:
             if layer.name == name:
@@ -147,7 +149,7 @@ class AllInOneModel(object):
     Parameters
     ----------
     labels : list
-        list of output labels. Elements of the list should be one or more 
+        list of output labels. Elements of the list should be one or more
         of ["detection_probablity","kpoints_visibility","key_points","pose","smile",
             "gender_probablity","age_estimation","face_reco","is_young","eye_glasses",
             "mouse_slightly_open"]
@@ -161,7 +163,7 @@ class AllInOneModel(object):
         assert type(labels) == list, " argment should be list type"
         assert not(labels is None or len(labels)==0), "Labels should not be empty"
         assert set(labels).issubset(all_lists), str(labels)+" contains lists which are not in "+ str(all_lists)
-        
+
         input_layer = self.model.inputs
         output_layers = []
         for label in labels:

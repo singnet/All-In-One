@@ -9,7 +9,7 @@ import dlib
 import numpy as np
 
 class CelebAAlignedDataset(Dataset):
-    """Class that abstracs celeba aligned dataset.
+    """Class that abstracts celeba aligned dataset.
     Assumtions
         - Dataset contains images inside dataset_dir
         - list_attr_celeba.txt inside dataset_dir
@@ -19,7 +19,7 @@ class CelebAAlignedDataset(Dataset):
     dataset_dir : str
         Relative or absolute path to dataset folder
     Raises
-    AssertionError 
+    AssertionError
         if the dataset path does not exist.
     """
 
@@ -63,7 +63,7 @@ class CelebAAlignedDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded all dataset and images")
             Log.DEBUG_OUT =False
-            
+
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
     def load_images(self,dataframe):
@@ -107,15 +107,15 @@ class CelebAAlignedDataset(Dataset):
         elif os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
             dataframe = pd.read_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))
             validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
         else:
             dataframe = self.load_dataset_from_annotation_file()
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
-            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))      
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
             dataframe.to_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
 
     def load_dataset_from_annotation_file(self):
@@ -139,7 +139,7 @@ class CelebAAlignedDataset(Dataset):
                 smile = np.eye(2)[smile]
                 yield X,smile
 
-    
+
     def fix_labeling_issue(self,dataset):
         if dataset is None:
             return None
@@ -149,4 +149,3 @@ class CelebAAlignedDataset(Dataset):
         return output
     def get_dataset_name(self):
         return "celeba"
-

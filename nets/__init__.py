@@ -33,7 +33,7 @@ class AllInOneNetwork(object):
             except:
                 Log.DEBUG("Unable to load model weight from "+config.model_weight)
             Log.DEBUG_OUT =False
-    
+
     def resume_model(self):
         customCheckPoint = CustomModelCheckPoint()
         REMAINING_EPOCHS = self.epochs
@@ -47,7 +47,7 @@ class AllInOneNetwork(object):
 
                     print ("unable to read epoch number from file. resuming epoch from 0.")
 
-                
+
             print("resuming from previous epoch number:")
             print("previous epoch number",customCheckPoint.epoch_number)
             print("remaining epochs",REMAINING_EPOCHS)
@@ -59,6 +59,7 @@ class AllInOneNetwork(object):
             logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
             logfile.write(str_date+"\n")
         return customCheckPoint
+        
     def train_imdb_wiki(self):
         if not self.dataset.dataset_loaded:
             self.dataset.load_dataset()
@@ -85,7 +86,7 @@ class AllInOneNetwork(object):
             callbacks = [checkPoint,LambdaUpdateCallBack()]
         else:
             callbacks = [CustomModelCheckPoint(),LambdaUpdateCallBack()]
-        
+
         ageGenderModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = ageGenderModel.evaluate(X_test,y_test)
@@ -106,7 +107,7 @@ class AllInOneNetwork(object):
                     smileModel.layers[i].trainable = True
         smileModel.compile(loss = keras.losses.categorical_crossentropy,optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         smileModel.summary()
-        
+
         X_test = self.dataset.test_dataset_images
         smiling = self.dataset.test_dataset["Smiling"].as_matrix().astype(np.uint8)
         y_test = np.eye(2)[smiling]
@@ -115,7 +116,7 @@ class AllInOneNetwork(object):
             callbacks = [checkPoint]
         else:
             callbacks = [CustomModelCheckPoint()]
-        
+
         smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
         with open("logs/logs.txt","a+") as log_file:
             score = smileModel.evaluate(X_test,y_test)
@@ -132,7 +133,7 @@ class AllInOneNetwork(object):
             log_file.write("small model _name:"+(self.config.small_model_name)+"\n")
             log_file.write("Score: "+str(score))
             log_file.write("________________________________________\n")
-    
+
     def train_age_network(self):
         age_model = self.model.get_model_with_labels(["age_estimation"])
         dataset = self.getDatasetFromString(self.config)
@@ -152,8 +153,8 @@ class AllInOneNetwork(object):
         )
         score = age_model.evaluate(X_test,age_test)
         self.save_model(age_model,score)
-        
-        
+
+
     def train_gender_network(self):
         gender_model = self.model.get_model_with_labels(["gender_probablity"])
         dataset = self.getDatasetFromString(self.config)
@@ -196,7 +197,7 @@ class AllInOneNetwork(object):
         self.save_model(smile_model,score)
     def getDatasetFromString(self, config):
         if self.config.dataset.lower() == "celeba":
-            return CelebAAlignedDataset(self.config) 
+            return CelebAAlignedDataset(self.config)
         elif self.config.dataset.lower() == "wiki" or self.config.dataset.lower()=="imdb":
             return ImdbWikiDataset(self.config)
         elif self.config.dataset.lower() == "aflw":
@@ -251,5 +252,3 @@ class AllInOneNetwork(object):
             self.train_pose_network()
         else:
             raise NotImplemented("Traing method not implemented for "+str(label))
-        
-        
