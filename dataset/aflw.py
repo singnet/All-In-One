@@ -15,25 +15,25 @@ class AflwDataset(Dataset):
     def __init__(self,config):
         # self.conn = sqlite3.connect("/home/mtk/dataset/aflw-files/aflw/data/aflw.sqlite")
         super(AflwDataset,self).__init__(config)
-    
+
     """ method that resizes image to the same resolution
-    image which have width and height equal or less than 
-    values specified by max_size. 
-        e.g 
+    image which have width and height equal or less than
+    values specified by max_size.
+        e.g
         img = np.zeros((200,300))
         img = resize_down_image(img,(100,100))
         img.shape # (66,100)
 
     """
-    
+
     def resize_down_image(self,img,max_img_shape):
         img_h,img_w = img.shape[0:2]
         w, h = img_w,img_h
         if max_img_shape[0]<h:
-            w = (max_img_shape[0]/float(h))  * w 
+            w = (max_img_shape[0]/float(h))  * w
             h = max_img_shape[0]
         if max_img_shape[1]<w:
-            h = (max_img_shape[1]/float(w)) * h 
+            h = (max_img_shape[1]/float(w)) * h
             w = max_img_shape[1]
         if h == img_h:
             return img,1
@@ -101,8 +101,8 @@ class AflwDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded all dataset and images")
             Log.DEBUG_OUT =False
-            
-        
+
+
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
     def generator(self,batch_size):
@@ -120,6 +120,7 @@ class AflwDataset(Dataset):
                 detection = self.get_column(current_dataframe,"is_face").astype(np.uint8)
                 detection = np.eye(2)[detection]
                 yield X,detection
+
     def load_images(self,dataframe):
         output_images = np.zeros((len(dataframe),self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2]))
         for index,row in dataframe.iterrows():
@@ -132,22 +133,24 @@ class AflwDataset(Dataset):
             img = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
             output_images[index] = img.reshape(self.config.image_shape)
         return output_images
+
     def meet_convention(self):
         if self.contain_dataset_files():
             return
         elif os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
             dataframe = pd.read_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))
             validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
         else:
             dataframe = self.load_face_non_face_dataset()
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
-            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))      
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
             dataframe.to_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
+
     def load_face_non_face_dataset(self):
         output_file_locations = []
         output_is_face = []
@@ -164,18 +167,18 @@ class AflwDataset(Dataset):
 
     def fix_labeling_issue(self,dataset):
         return dataset
+
     def rect_intersection(self,rect1,rect2):
         x_overlap = max(0, min(rect1[2], rect2[2]) - max(rect1[0], rect2[0]));
         y_overlap = max(0, min(rect1[3], rect2[3]) - max(rect1[1], rect2[1]));
         overlapArea = x_overlap * y_overlap;
         return overlapArea
 
-
     def rect_union(self,rect1,rect2):
-        
+
         assert rect1.shape == (4,) , "rect1 shape should be (4,) and it is "+str(rect1.shape)
         assert rect2.shape == (4,) , "rect2 shape should be (4,) and it is "+str(rect2.shape)
-        
+
         width1 = np.abs(rect1[0]-rect1[2])
         height1 = np.abs(rect1[1]-rect1[3])
 
@@ -186,7 +189,6 @@ class AflwDataset(Dataset):
 
         return area1+area2 - self.rect_intersection(rect1,rect2)
 
-
     def bb_intersection_over_union(self,boxA, boxB):
         intr = self.rect_intersection(boxA,boxB)
         if(intr<=0):
@@ -196,8 +198,10 @@ class AflwDataset(Dataset):
             return 0
         iou = intr / float(runion)
         return iou
+        
     def get_dataset_name(self):
         return "aflw"
+
 class Rect(object):
     def __init__(self,x,y,w,h):
         self.x = x
@@ -205,7 +209,7 @@ class Rect(object):
         self.w = w
         self.h = h
     def area(self):
-        return self.w * self.h 
+        return self.w * self.h
     def intersection(self,rect):
         x_overlap = max(0, min(rect1[2], rect2[2]) - max(self.x, rect.x));
         y_overlap = max(0, min(rect1[3], rect2[3]) - max(rect1[1], rect2[1]));

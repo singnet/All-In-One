@@ -27,6 +27,7 @@ class CelebAAlignedDataset(Dataset):
         super(CelebAAlignedDataset,self).__init__(config)
         self.labels = labels
         self.detector = dlib.get_frontal_face_detector()
+
     def load_dataset(self):
         if set(self.labels).issubset(["Smiling","Male"]):
             if not self.contain_dataset_files():
@@ -66,6 +67,7 @@ class CelebAAlignedDataset(Dataset):
 
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
+
     def load_images(self,dataframe):
         if dataframe is None:
             return None
@@ -101,6 +103,7 @@ class CelebAAlignedDataset(Dataset):
                         output_images[index] = face_image.reshape(self.config.image_shape)
                         Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.config.dataset_dir,row["file_location"])+" Loading full image as face")
             return output_images
+
     def meet_convention(self):
         if self.contain_dataset_files():
             return
@@ -138,7 +141,6 @@ class CelebAAlignedDataset(Dataset):
                 smile = self.get_column(current_dataframe,"Smiling").astype(np.uint8)
                 smile = np.eye(2)[smile]
                 yield X,smile
-
 
     def fix_labeling_issue(self,dataset):
         if dataset is None:

@@ -7,26 +7,26 @@ import pandas as pd
 
 class Dataset(object):
     __metaclass__ = ABCMeta
-    """Base class for all classes that abstract the datasets. 
+    """Base class for all classes that abstract the datasets.
     Conventions
-        - All dataset should have referance file location of images 
-        relative to dataset_dir variable. 
+        - All dataset should have reference file location of images
+        relative to dataset_dir variable.
         - All dataset should have all.pkl file contains dataframe that
-        have  file_location key to load images 
+        have  file_location key to load images
         - Dataset may contain train.pkl, test.pkl and validation.pkl
-        inside dataset_dir. If they are not available the class that 
-        abstracts the dataset should create them when the object of 
-        that class is instantiated. 
+        inside dataset_dir. If they are not available the class that
+        abstracts the dataset should create them when the object of
+        that class is instantiated.
         N.B validation.pkl is optional.
 
     Parameters
     ----------
     dataset_dir : str
-        Relateive or absolute path to Dataset directory 
+        Relative or absolute path to Dataset directory
     image_shape : numpy.ndarray
         Shape of image the dataset will be given to training network.
     Raises
-    AssertionError 
+    AssertionError
         if the dataset path does not exist.
     """
 
@@ -35,8 +35,8 @@ class Dataset(object):
         self.dataset_loaded = False
         self.config = config
     """Loads train,test and validation datasets from files inside directory dataset_dir.
-    load_dataset method should set dataset_loaded to True after sucessfully loaded the dataset.
-    The method should check if train.pkl and test.pkl files exists. 
+    load_dataset method should set dataset_loaded to True after sucessfully loading the dataset.
+    The method should check if train.pkl and test.pkl files exists.
     Raises
     ------
     Exception
@@ -53,13 +53,13 @@ class Dataset(object):
     @abstractmethod
     def generator(self,batch_size):
         raise NotImplementedError("Not implmented!")
-    
+
     """Loads face images according to specification of dataset document.
     """
 
     @abstractmethod
     def load_images(self,dataframe):
-        
+
         raise NotImplementedError("Not implemented")
 
     """This method checks the dataset directory has structure specified
@@ -67,15 +67,15 @@ class Dataset(object):
     """
     def has_met_convention(self):
         if not self.contain_dataset_files():
-            return False  
+            return False
         else:
             if not self.dataset_loaded:
                 self.load_dataset()
             if not "file_location" in self.train_dataset.columns:
-                print "Failed to met convention","training dataset does not contain file_location column"
+                print "Failed to meet convention","training dataset does not contain file_location column"
                 return False
             elif not "file_location" in self.test_dataset.columns:
-                print "Failed to met convention","test dataset does not contain file_location column"
+                print "Failed to meet convention","test dataset does not contain file_location column"
                 return False
             return True
     """ Loads dataset inside given pickle file.
@@ -87,7 +87,7 @@ class Dataset(object):
     -------
     pandas.core.frame.DataFrame
         Dataframe of dataset with given file path.
-    Raises 
+    Raises
     ------
     IOError
         If the given file path doesnot exists
@@ -99,22 +99,23 @@ class Dataset(object):
         return dataframe
     """Checks if all.pkl, train.pkl and test.pkl files exists.
     Returns
-    ------- 
-    bool 
+    -------
+    bool
         True if all the files exist. False if at least one of the files missing
     """
 
     def contain_dataset_files(self):
         if not os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
-            print "Failed to met convention","all.pkl is not inside:"+self.config.dataset_dir
+            print "Failed to meet convention","all.pkl is not inside:"+self.config.dataset_dir
             return False
         if not os.path.exists(os.path.join(self.config.dataset_dir,"train.pkl")):
-            print "Failed to met convention","train.pkl is not inside:"+self.config.dataset_dir
+            print "Failed to meet convention","train.pkl is not inside:"+self.config.dataset_dir
             return False
         if not os.path.exists(os.path.join(self.config.dataset_dir,"test.pkl")):
-            print "Failed to met convention","test.pkl is not inside:"+self.config.dataset_dir
+            print "Failed to meet convention","test.pkl is not inside:"+self.config.dataset_dir
             return False
         return True;
+        
     @abstractmethod
     def meet_convention(self):
         raise NotImplementedError("Not implmented")
