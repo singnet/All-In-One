@@ -7,8 +7,6 @@ import os
 
 INPUT_SIZE = (227,227,1)
 
-
-
 def main():
     args = get_cmd_args()
     if not os.path.exists(args.images_path):

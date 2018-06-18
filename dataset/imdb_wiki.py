@@ -68,6 +68,7 @@ class ImdbWikiDataset(Dataset):
 
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
+
     def load_images(self,dataframe):
         if dataframe is None:
             return None
@@ -87,6 +88,7 @@ class ImdbWikiDataset(Dataset):
                 face_image = cv2.resize(face_image,(self.config.image_shape[0],self.config.image_shape[1]))
                 output_images[index] = face_image.reshape(self.config.image_shape)
             return output_images
+
     def meet_convention(self):
         if self.contain_dataset_files():
             return
@@ -172,6 +174,7 @@ class ImdbWikiDataset(Dataset):
             return taken - birth.year
         else:
             return taken - birth.year - 1
+            
     def load_from_mat(self,mat_path):
         meta = loadmat(mat_path)
         file_location = meta[self.dataset][0, 0]["full_path"][0]

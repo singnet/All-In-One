@@ -76,8 +76,6 @@ class AllInOneModel(object):
         gender_drop2 = Dropout(0.2)(gender_probablity2)
         gender_probablity3 = Dense(2,activation="softmax",name="gender_probablity")(gender_drop2)
 
-
-
         # Young
         young_1 = Dense(1024,activation="relu")(conv6_out_pool_flatten)
         young_drop1 = Dropout(0.2)(young_1)
@@ -86,7 +84,6 @@ class AllInOneModel(object):
         young_3 = Dense(2,activation="softmax",name="is_young")(young_drop2)
 
         #
-
 
         # face detection
         detection_probability1 = Dense(512,activation="relu")(merge_1_dropout)
@@ -139,7 +136,7 @@ class AllInOneModel(object):
         with open(path,"w+") as json_file:
             json_file.write(model_json)
             print "Saved model"
-            
+
     def get_layer(self,name):
         for layer in self.model.layers:
             if layer.name == name:

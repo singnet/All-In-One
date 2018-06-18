@@ -226,12 +226,35 @@ class AllInOneNetwork(object):
         )
         score = face_detection_model.evaluate(X_test,detection_test)
         self.save_model(face_detection_model,score)
+
     def train_key_points_localization_network(self):
         pass
     def train_key_points_visiblity_network(self):
         pass
     def train_pose_network(self):
-        pass
+        pose_model = self.model.get_model_with_labels(["pose"])
+        dataset = self.getDatasetFromString(self.config)
+        if not dataset.dataset_loaded:
+            dataset.load_dataset()
+        X_test = dataset.test_dataset_images
+        X_test = X_test.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
+        yaw_test = dataset.test_dataset["Yaw"].as_matrix().astype(np.uint8)
+        pitch_test = dataset.test_dataset["Pitch"].as_matrix().astype(np.uint8)
+        row_test = dataset.test_dataset["row"].as_matrix().astype(np.uint8)
+
+        pose_test  = np.eye(2)[pose_test]
+        pose_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
+        callbacks = None
+        pose_model.summary()
+        pose_model.fit_generator(dataset.smile_data_generator(self.config.batch_size),
+                epochs = self.config.epochs,
+                steps_per_epoch = self.config.steps_per_epoch,
+                validation_data = [X_test,pose_test],
+                callbacks = callbacks
+        )
+        score = pose_model.evaluate(X_test,pose_test)
+        self.save_model(pose_model,score)
+
     def train_face_recognition_network(self):
         pass
     def train(self):
