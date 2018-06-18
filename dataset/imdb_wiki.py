@@ -20,7 +20,7 @@ class ImdbWikiDataset(Dataset):
     dataset_dir : str
         Relative or absolute path to dataset folder
     Raises
-    AssertionError 
+    AssertionError
         if the dataset path does not exist.
     """
 
@@ -34,7 +34,7 @@ class ImdbWikiDataset(Dataset):
                 self.meet_convention()
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading pickle files")
-            Log.DEBUG_OUT =False
+            Log.DEBUG_OUT = False
             self.train_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"train.pkl"))
             self.test_dataset = self.get_meta(os.path.join(self.config.dataset_dir,"test.pkl"))
             if os.path.exists(os.path.join(self.config.dataset_dir,"validation.pkl")):
@@ -65,7 +65,7 @@ class ImdbWikiDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded all dataset and images")
             Log.DEBUG_OUT =False
-            
+
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
     def load_images(self,dataframe):
@@ -76,12 +76,12 @@ class ImdbWikiDataset(Dataset):
             assert  "file_location" in dataframe.columns, "dataframe should contain file_location column"
             output_images = np.zeros((len(dataframe),self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2]))
             for index,row in dataframe.iterrows():
-                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"][0]))
+                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"][0].str_replace["mtk", "samuel"]))
 
                 if img is None:
-                    Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"][0]))
+                    Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"][0].str_replace["mtk", "samuel"]))
                     continue
-                face_location = row["face_location"][0].astype(int) 
+                face_location = row["face_location"][0].str_replace("mtk", "samuel").astype(int)
                 face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
                 face_image = cv2.cvtColor(face_image,cv2.COLOR_BGR2GRAY)
                 face_image = cv2.resize(face_image,(self.config.image_shape[0],self.config.image_shape[1]))
@@ -93,15 +93,15 @@ class ImdbWikiDataset(Dataset):
         elif os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
             dataframe = pd.read_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))
             validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
         else:
             dataframe = self.load_from_mat(os.path.join(self.config.dataset_dir,self.dataset+".mat"))
             train,test,validation = self.split_train_test_validation(dataframe)
-            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))      
-            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))      
-            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))      
+            train.to_pickle(os.path.join(self.config.dataset_dir,"train.pkl"))
+            test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))
+            validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
             dataframe.to_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
 
     def generator(self,batch_size=32):
@@ -128,7 +128,7 @@ class ImdbWikiDataset(Dataset):
                 current_images = self.load_images(current_dataframe)
                 X = current_images.astype(np.float32)/255
                 age = self.get_column(current_dataframe,"Age")
-                
+
                 yield X,age
     def gender_data_genenerator(self,batch_size):
         while True:
@@ -140,10 +140,10 @@ class ImdbWikiDataset(Dataset):
                 current_images = self.load_images(current_dataframe)
                 X = current_images.astype(np.float32)/255
                 gender = self.get_column(current_dataframe,"Gender").astype(np.uint8)
-                gender = np.eye(2)[gender]                
+                gender = np.eye(2)[gender]
                 yield X,gender
-    
-    
+
+
     def fix_labeling_issue(self,dataset):
         if dataset is None:
             return None
@@ -182,7 +182,7 @@ class ImdbWikiDataset(Dataset):
         face_location = meta[self.dataset][0, 0]["face_location"][0]
 
         df = pd.DataFrame.from_dict({"file_location":file_location,"Gender":gender,
-        
+
         "score":face_score,"second_face_score":second_face_score,"Age":age,"face_location":face_location})
 
         return df

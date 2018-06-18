@@ -49,16 +49,16 @@ class CelebAAlignedDataset(Dataset):
             self.validation_dataset = self.fix_labeling_issue(self.validation_dataset)
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded train, test and validation dataset")
-            Log.DEBUG_OUT =False
+            Log.DEBUG_OUT = False
             self.test_dataset = self.test_dataset[:5000]
             self.validation_dataset = self.validation_dataset[:100]
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading test images")
-            Log.DEBUG_OUT =False
+            Log.DEBUG_OUT = False
             self.test_dataset_images = self.load_images(self.test_dataset).astype(np.float32)/255
             Log.DEBUG_OUT = True
             Log.DEBUG("Loading validation images")
-            Log.DEBUG_OUT =False
+            Log.DEBUG_OUT = False
             self.validation_dataset_images = self.load_images(self.validation_dataset).astype(np.float32)/255
             self.dataset_loaded = True
             Log.DEBUG_OUT = True
@@ -76,10 +76,10 @@ class CelebAAlignedDataset(Dataset):
             assert  "file_location" in dataframe.columns, "dataframe should contain file_location column"
             output_images = np.zeros((len(dataframe),self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2]))
             for index,row in dataframe.iterrows():
-                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"]))
+                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"].str_replace("mtk", "samuel").str_replace("mtk", "samuel")))
 
                 if img is None:
-                    Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"]))
+                    Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"].str_replace("mtk", "samuel")))
                     continue
                 faces = self.detector(img)
                 for i in range(len(faces)):
@@ -101,7 +101,7 @@ class CelebAAlignedDataset(Dataset):
                         face_image = cv2.cvtColor(face_image,cv2.COLOR_BGR2GRAY)
                         face_image = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
                         output_images[index] = face_image.reshape(self.config.image_shape)
-                        Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.config.dataset_dir,row["file_location"])+" Loading full image as face")
+                        Log.WARNING("Dlib unable to find faces from :"+os.path.join(self.config.dataset_dir,row["file_location"].str_replace("mtk", "samuel"))+" Loading full image as face")
             return output_images
 
     def meet_convention(self):

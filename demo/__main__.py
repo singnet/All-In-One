@@ -30,14 +30,10 @@ def images_demo(model,images_dir,detector):
                 smile = "False"
             else:
                 smile = "True"
-            if gender == 0:
+            if(gender == 0):
                 gender= "Female"
             else:
                 gender = "Male"
-
-
-
-
 
             cv2.putText(image, "Age: "+age, (face.left() + 10, face.top() + 10), cv2.FONT_HERSHEY_DUPLEX, 0.4,
                     (255,0,0))
@@ -81,9 +77,6 @@ def process_video(model, path,detector):
                 gender = "Male"
 
 
-
-
-
             cv2.putText(frame, "Age: "+age, (face.left() + 10, face.top() + 10), cv2.FONT_HERSHEY_DUPLEX, 0.4,
                     (255,0,0))
             cv2.putText(frame, "Smile: "+smile, (face.left() + 10, face.top() + 20), cv2.FONT_HERSHEY_DUPLEX, 0.4,(255,0,0))
@@ -99,7 +92,7 @@ def webcam_demo(model,detector):
     process_video(model,-1,detector)
 
 def video_demo(model,vidoe_path,detector):
-    process_video(model,vidoe_path,detector)
+    process_video(model,video_path,detector)
 
 
 
