@@ -115,7 +115,7 @@ class Dataset(object):
             print "Failed to meet convention","test.pkl is not inside:"+self.config.dataset_dir
             return False
         return True;
-        
+
     @abstractmethod
     def meet_convention(self):
         raise NotImplementedError("Not implmented")

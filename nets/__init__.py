@@ -44,9 +44,7 @@ class AllInOneNetwork(object):
                     customCheckPoint.epoch_number = data["epoch_number"]
                     REMAINING_EPOCHS -= customCheckPoint.epoch_number
                 except:
-
                     print ("unable to read epoch number from file. resuming epoch from 0.")
-
 
             print("resuming from previous epoch number:")
             print("previous epoch number",customCheckPoint.epoch_number)
@@ -59,7 +57,7 @@ class AllInOneNetwork(object):
             logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
             logfile.write(str_date+"\n")
         return customCheckPoint
-        
+
     def train_imdb_wiki(self):
         if not self.dataset.dataset_loaded:
             self.dataset.load_dataset()
@@ -123,6 +121,7 @@ class AllInOneNetwork(object):
             log_file.write(str(score))
         self.model.save_weights("models/"+self.large_model_name+".h5")
         smileModel.save_weights("models/"+self.small_model_name+".h5")
+
     def save_model(self,model,score):
         self.model.model.save_weights("models/"+self.config.large_model_name+".h5")
         model.save_weights("models/"+self.config.small_model_name+".h5")
@@ -175,6 +174,7 @@ class AllInOneNetwork(object):
         )
         score = gender_model.evaluate(X_test,gender_test)
         self.save_model(gender_model,score)
+
     def train_smile_network(self):
         smile_model = self.model.get_model_with_labels(["smile"])
         dataset = self.getDatasetFromString(self.config)
@@ -195,6 +195,7 @@ class AllInOneNetwork(object):
         )
         score = smile_model.evaluate(X_test,smile_test)
         self.save_model(smile_model,score)
+
     def getDatasetFromString(self, config):
         if self.config.dataset.lower() == "celeba":
             return CelebAAlignedDataset(self.config)
@@ -204,6 +205,7 @@ class AllInOneNetwork(object):
             return AflwDataset(self.config)
         else:
             raise NotImplementedError("Not implemented for "+str(config.dataset))
+
     def train_face_detection_network(self):
         face_detection_model = self.model.get_model_with_labels(["detection_probablity"])
         dataset = self.getDatasetFromString(self.config)

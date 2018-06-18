@@ -198,7 +198,7 @@ class AflwDataset(Dataset):
             return 0
         iou = intr / float(runion)
         return iou
-        
+
     def get_dataset_name(self):
         return "aflw"
 

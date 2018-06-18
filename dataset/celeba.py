@@ -76,7 +76,7 @@ class CelebAAlignedDataset(Dataset):
             assert  "file_location" in dataframe.columns, "dataframe should contain file_location column"
             output_images = np.zeros((len(dataframe),self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2]))
             for index,row in dataframe.iterrows():
-                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"].str_replace("mtk", "samuel").str_replace("mtk", "samuel")))
+                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"].str_replace("mtk", "samuel")))
 
                 if img is None:
                     Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"].str_replace("mtk", "samuel")))
@@ -120,7 +120,7 @@ class CelebAAlignedDataset(Dataset):
             test.to_pickle(os.path.join(self.config.dataset_dir,"test.pkl"))
             validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
             dataframe.to_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
-
+#load dataset from annotation file
     def load_dataset_from_annotation_file(self):
         annotation_file = os.path.join(self.config.dataset_dir,"list_attr_celeba.txt")
         headers = ['file_location', '5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young']

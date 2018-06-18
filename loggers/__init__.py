@@ -55,7 +55,7 @@ class Log(object):
     def DEBUG(message):
         if Log.DEBUG_OUT:
             print(message)
-    @staticmethod    
+    @staticmethod
     def WARNING(message):
         if Log.WARINING_OUT:
             cf = currentframe()
@@ -69,6 +69,7 @@ class Log(object):
                 Log.print_colored(message+", at "+ file_name,bg=colors.bg.yellow)
             else:
                 Log.print_colored(message,bg=colors.bg.yellow)
+                
     @staticmethod
     def ERROR(message):
         if Log.ERROR_OUT:
@@ -99,5 +100,3 @@ class Log(object):
         format = ';'.join([str(style), str(fg), str(bg)])
         s1 = '\x1b[%sm %s \x1b[0m' % (format, message)
         print(s1)
-
-

@@ -76,12 +76,12 @@ class ImdbWikiDataset(Dataset):
             assert  "file_location" in dataframe.columns, "dataframe should contain file_location column"
             output_images = np.zeros((len(dataframe),self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2]))
             for index,row in dataframe.iterrows():
-                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"][0].str_replace["mtk", "samuel"]))
+                img = cv2.imread(os.path.join(self.config.dataset_dir,row["file_location"][0]))
 
                 if img is None:
-                    Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"][0].str_replace["mtk", "samuel"]))
+                    Log.WARNING("Unable to read images from "+os.path.join(self.config.dataset_dir,row["file_location"][0]))
                     continue
-                face_location = row["face_location"][0].str_replace("mtk", "samuel").astype(int)
+                face_location = row["face_location"][0].astype(int)
                 face_image = img[face_location[1]:face_location[3],face_location[0]:face_location[2]]
                 face_image = cv2.cvtColor(face_image,cv2.COLOR_BGR2GRAY)
                 face_image = cv2.resize(face_image,(self.config.image_shape[0],self.config.image_shape[1]))
@@ -118,6 +118,7 @@ class ImdbWikiDataset(Dataset):
                 gender = self.get_column(current_dataframe,"Gender").astype(np.uint8)
                 gender = np.eye(2)[gender]
                 yield X,[age,gender]
+
     def age_data_genenerator(self,batch_size):
         while True:
             indexes = np.arange(len(self.train_dataset))
@@ -130,6 +131,7 @@ class ImdbWikiDataset(Dataset):
                 age = self.get_column(current_dataframe,"Age")
 
                 yield X,age
+
     def gender_data_genenerator(self,batch_size):
         while True:
             indexes = np.arange(len(self.train_dataset))
