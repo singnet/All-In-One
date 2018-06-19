@@ -4,8 +4,8 @@ from dataset.imdb_wiki import ImdbWikiDataset
 import argparse
 
 class DatasetType(object):
-    
-    
+
+
     ds_types = {
         "imdb":0,   # gender and age dataset
         "wiki":1,   # gender and age dataset
@@ -38,17 +38,17 @@ class DatasetType(object):
         name of the dataset
     Return
     ------
-    int 
+    int
         integer that represents a dataset with given name
     """
     @staticmethod
     def from_string(string):
         return DatasetType.ds_types[string.lower()]
-    
+
 class Config(object):
     """Class that has information required to train model.
     """
-    
+
     def __init__(self,dataset,dataset_dir,image_shape,epochs=None,batch_size=None,lr=None,steps_per_epoch=None,resume_model=False,large_model_name=None,small_model_name=None,model_weight=None,loss_weights=None):
         self.epochs = epochs
         self.batch_size=batch_size
@@ -80,8 +80,8 @@ class Config(object):
         return self.lr
     def getStepsPerEpoch(self):
         return self.steps_per_epoch
-    
-    
+
+
 
 def get_cmd_args():
     parser = argparse.ArgumentParser()
@@ -109,7 +109,6 @@ def get_cmd_args():
     parser.add_argument("--identity_loss_weight",default=1,type=float)
     parser.add_argument("--eye_glasses_loss_weight",default=1,type=float)
     parser.add_argument("--freeze",default=False,type=bool)
-
 
     args = parser.parse_args()
     return args
