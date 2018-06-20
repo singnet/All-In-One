@@ -277,12 +277,12 @@ class AllInOneNetwork(object):
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
         X_test = X_test.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
-        yaw_test = dataset.test_dataset["Yaw"].as_matrix().astype(np.uint8)
-        pitch_test = dataset.test_dataset["Pitch"].as_matrix().astype(np.uint8)
+        yaw_test = dataset.test_dataset["yaw"].as_matrix().astype(np.uint8)
+        pitch_test = dataset.test_dataset["pitch"].as_matrix().astype(np.uint8)
         row_test = dataset.test_dataset["row"].as_matrix().astype(np.uint8)
 
         pose_test  = np.eye(2)[pose_test]
-        pose_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
+        pose_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adamax(self.config.getLearningRate(),beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0),metrics=["accuracy"])
         callbacks = None
         pose_model.summary()
         pose_model.fit_generator(dataset.smile_data_generator(self.config.batch_size),
