@@ -174,7 +174,7 @@ class ImdbWikiDataset(Dataset):
             return taken - birth.year
         else:
             return taken - birth.year - 1
-            
+
     def load_from_mat(self,mat_path):
         meta = loadmat(mat_path)
         file_location = meta[self.dataset][0, 0]["full_path"][0]
