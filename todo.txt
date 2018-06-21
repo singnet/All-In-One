@@ -2,5 +2,5 @@
     - when start training model
     - when saving model
 - Logging to stdout
-- Use only validation data while traing and test data when evaluating model
+- Use only validation data while training and test data when evaluating model
 - Fast way to load datasets from disk
