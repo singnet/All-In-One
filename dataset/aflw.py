@@ -216,7 +216,18 @@ class Rect(object):
         overlapArea = x_overlap * y_overlap;
         return overlapArea
     def union(self,rect):
-        pass
+        assert rect1.shape == (4,) , "rect1 shape should be (4,) and it is "+str(rect1.shape)
+        assert rect2.shape == (4,) , "rect2 shape should be (4,) and it is "+str(rect2.shape)
+
+        width1 = np.abs(rect1[0]-rect1[2])
+        height1 = np.abs(rect1[1]-rect1[3])
+
+        width2 = np.abs(rect2[0]-rect2[2])
+        height2 = np.abs(rect2[1]-rect2[3])
+        area1 = width1 * height1
+        area2 = width2 * height2
+
+        return area1+area2 - self.rect_intersection(rect1,rect2)
     def iou(self,rect):
         pass
     def __str__(self):
