@@ -337,4 +337,4 @@ class AllInOneNetwork(object):
         elif label == "pose":
             self.train_pose_network()
         else:
-            raise NotImplemented("Traing method not implemented for "+str(label))
+            raise NotImplemented("Training method not implemented for "+str(label))

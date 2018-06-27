@@ -1,6 +1,7 @@
 from dataset.aflw import AflwDataset
 from dataset.celeba import CelebAAlignedDataset
 from dataset.imdb_wiki import ImdbWikiDataset
+from dataset.adience import AdienceDataset
 import argparse
 
 class DatasetType(object):
@@ -14,13 +15,15 @@ class DatasetType(object):
         "yale":3,   # pose,identity and illumunation dataset
         "ck+":4,    # emotion,identity and dataset
         "aflw":5,   # pose, key points,detection
-        "test":6    # dataset used solely for testing the methods of classes. It is found inside tests/ds/ folder.
+        "test":6,
+        "adience":6,   # dataset used solely for testing the methods of classes. It is found inside tests/ds/ folder.
     }
     IMDB = 0
     WIKI = 1
     CELEB_A = 2
     YALE = 3
     CK_PLUS = 4
+    ADIENCE = 5
 
     """ Class that abstracts all dataset type currently available.
     Using this class assumes all dataset available are listed above.

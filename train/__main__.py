@@ -12,7 +12,7 @@ def main():
     if not os.path.exists(args.images_path):
         print "image path given does not exists"
         exit(0)
-    if not args.dataset.lower() in ["wiki","imdb", "celeba","aflw"]:
+    if not args.dataset.lower() in ["wiki","imdb", "celeba","aflw", "adience"]:
         print "currently implemented for only wiki, imdb, aflw and celeba datasets"
         exit(0)
     config = get_config(args)

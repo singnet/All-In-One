@@ -57,6 +57,7 @@ class AflwDataset(Dataset):
         cv2.imshow("Image",img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
     def load_dataset(self):
         if self.config.label == "detection":
             if not self.contain_dataset_files():
@@ -101,7 +102,6 @@ class AflwDataset(Dataset):
             Log.DEBUG_OUT = True
             Log.DEBUG("Loaded all dataset and images")
             Log.DEBUG_OUT =False
-
 
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))

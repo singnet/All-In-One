@@ -52,7 +52,7 @@ class AdienceDtataset(Dataset):
              int(crect.bottom()* scale),
             ) for crect in cand_rects]
         for rect in rects:
-        cv2.rectangle(img,(rect[0],rect[1]),(rect[2],rect[3]),(255,0,0),2)
+            cv2.rectangle(img,(rect[0],rect[1]),(rect[2],rect[3]),(255,0,0),2)
         cv2.imshow("Image",img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
