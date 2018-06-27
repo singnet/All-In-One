@@ -203,6 +203,8 @@ class AllInOneNetwork(object):
             return ImdbWikiDataset(self.config)
         elif self.config.dataset.lower() == "aflw":
             return AflwDataset(self.config)
+        elif self.config.dataset.lower() == "adience":
+            return AdienceDataset(self.config)
         else:
             raise NotImplementedError("Not implemented for "+str(config.dataset))
 
