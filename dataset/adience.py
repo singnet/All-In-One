@@ -8,7 +8,7 @@ import pandas as pd
 from loggers import Log
 
 
-class AdienceDtataset(Dataset):
+class AdienceDataset(Dataset):
     """Class that abstracts Aflw dataset.
     """
 
@@ -153,19 +153,19 @@ class AdienceDtataset(Dataset):
             validation.to_pickle(os.path.join(self.config.dataset_dir,"validation.pkl"))
             dataframe.to_pickle(os.path.join(self.config.dataset_dir,"all.pkl"))
 
-    # def load_face_non_face_dataset(self):
-    #     output_file_locations = []
-    #     output_is_face = []
-    #     for img_path in os.listdir(os.path.join(self.config.dataset_dir,"face")):
-    #         output_file_locations+=[os.path.join(self.config.dataset_dir,"face",img_path)]
-    #         output_is_face+=[1]
-    #     for img_path in os.listdir(os.path.join(self.config.dataset_dir,"non-face")):
-    #         output_file_locations+=[os.path.join(self.config.dataset_dir,"non-face",img_path)]
-    #         output_is_face+=[0]
-    #     output_df = pd.DataFrame(columns=["file_location","is_face"])
-    #     output_df["file_location"] = output_file_locations
-    #     output_df["is_face"] = output_is_face
-    #     return output_df
+    def load_face_non_face_dataset(self):
+        output_file_locations = []
+        output_is_face = []
+        for img_path in os.listdir(os.path.join(self.config.dataset_dir)):
+            output_file_locations+=[os.path.join(self.config.dataset_dir,img_path)]
+            output_is_face+=[1]
+        for img_path in os.listdir(os.path.join(self.config.dataset_dir)):
+            output_file_locations+=[os.path.join(self.config.dataset_dir,img_path)]
+            output_is_face+=[0]
+        output_df = pd.DataFrame(columns=["file_location","is_face"])
+        output_df["file_location"] = output_file_locations
+        output_df["is_face"] = output_is_face
+        return output_df
 
     def fix_labeling_issue(self,dataset):
         return dataset

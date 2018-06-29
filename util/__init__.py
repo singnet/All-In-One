@@ -16,7 +16,7 @@ class DatasetType(object):
         "ck+":4,    # emotion,identity and dataset
         "aflw":5,   # pose, key points,detection
         "test":6,
-        "adience":6,   # dataset used solely for testing the methods of classes. It is found inside tests/ds/ folder.
+        "adience":7,   # dataset used solely for testing the methods of classes. It is found inside tests/ds/ folder.
     }
     IMDB = 0
     WIKI = 1
