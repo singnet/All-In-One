@@ -274,13 +274,13 @@ class AllInOneNetwork(object):
         self.save_model(key_points_model,score)
 
     def train_key_points_visiblity_network(self):
-        key_points_visibliity_model = self.model.get_model_with_labels(["kpoints_visibility"])
+        key_points_visibliity_model = self.model.get_model_with_labels(["key_points_visiblity"])
         dataset = self.getDatasetFromString(self.config)
         if not dataset.dataset_loaded:
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
         X_test = X_test.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
-        key_points_visibility_test = dataset.test_dataset["key_points"].as_matrix().astype(np.uint8)
+        key_points_visibility_test = dataset.test_dataset["key_points_visiblity"].as_matrix().astype(np.uint8)
         key_points_visibility_test  = np.eye(2)[key_points_visibility_test]
         pose_model.compile(loss = keras.losses.binary_crossentropy,optimizer=keras.optimizers.Adam(self.config.getLearningRate()),metrics=["accuracy"])
         callbacks = None
@@ -319,7 +319,7 @@ class AllInOneNetwork(object):
         self.save_model(pose_model,score)
 
     def train_face_recognition_network(self):
-        face_reco_model = self.model.get_model_with_labels(["face_reco"])
+        face_reco_model = self.model.get_model_with_labels(["identificaton"])
         dataset = self.getDatasetFromString(self.config)
         if not dataset.dataset_loaded:
             dataset.load_dataset()

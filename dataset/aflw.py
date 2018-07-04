@@ -40,9 +40,10 @@ class AflwDataset(Dataset):
         else:
             scale = img_h/h
             img = cv2.resize(img,(int(w),int(h)))
+#            img = scipy.misc.imresize(img, (int(w),int(h))).astype(np.float32)/255
             return img,scale
 
-    def selective_search(self,img,min_size=(2200),max_img_size=(500,500),debug=False):
+    def selective_search(self,img,min_size=(2200),max_img_size=(24,24),debug=False):
         cand_rects = []
         img,scale = self.resize_down_image(img,max_img_size)
         dlib.find_candidate_object_locations(img,cand_rects,min_size=min_size)
@@ -130,7 +131,7 @@ class AflwDataset(Dataset):
                 print("Unable to read image from ",file_location)
                 continue
             img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-            img = cv2.resize(img,(self.config.image_shape[0],self.config.image_shape[1]))
+            img = scipy.misc.imresize(img, (self.config.image_shape[0], self.config.image_shape[1])).astype(np.float32)/255
             output_images[index] = img.reshape(self.config.image_shape)
         return output_images
 

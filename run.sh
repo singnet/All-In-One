@@ -15,3 +15,5 @@ python -m train --dataset wiki --images_path ~/dataset/wiki/ --label age --batch
 python -m train --dataset wiki --images_path ~/Videos/Adience/faces/ --label age --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10
 
 python -m train --dataset adience --images_path /home/samuel/aflw/ --label detection --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10
+
+python -m train --dataset adience --images_path /home/samuel/aflw/ --label pose --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10

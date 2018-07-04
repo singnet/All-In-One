@@ -20,10 +20,10 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
         self.epoch_number = 0
     # def on_train_begin(self,epoch, logs={}):
     #     return
- 
+
     # def on_train_end(self, logs={}):
     #     return
- 
+
     def on_epoch_begin(self,epoch, logs={}):
         return
 
@@ -31,7 +31,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
         self.epoch_number+=1
         current_val_loss = logs.get("val_loss")
         current_loss = logs.get("loss")
-       
+
 
         if (self.last_loss-current_val_loss) > 0.01:
             current_weights_name = "weights"+str(self.current_model_number)+".h5"
@@ -76,4 +76,3 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
             with open("epoch_number.json","w+") as json_file:
                 data = {"epoch_number":self.epoch_number}
                 json.dump(data,json_file,indent=4)
-
