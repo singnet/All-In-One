@@ -43,7 +43,7 @@ class AdienceDataset(Dataset):
             img = scipy.misc.imresize(img, (int(w),int(h))).astype(np.float32)/255
             return img,scale
 
-    def selective_search(self,img,min_size=(2200),max_img_size=(100,100),debug=False):
+    def selective_search(self,img,min_size=(2200),max_img_size=(24,24),debug=False):
         cand_rects = []
         img,scale = self.resize_down_image(img,max_img_size)
         dlib.find_candidate_object_locations(img,cand_rects,min_size=min_size)
