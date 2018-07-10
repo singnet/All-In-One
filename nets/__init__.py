@@ -281,7 +281,7 @@ class AllInOneNetwork(object):
             dataset.load_dataset()
         X_test = dataset.test_dataset_images
         X_test = X_test.reshape(-1,self.config.image_shape[0],self.config.image_shape[1],self.config.image_shape[2])
-        pose_test = dataset.test_dataset["Pose"].as_matrix().astype(np.uint8)
+        pose_test = dataset.test_dataset["is_face"].as_matrix().astype(np.uint8)
         #pitch_test = dataset.test_dataset["pitch"].as_matrix().astype(np.uint8)
         #row_test = dataset.test_dataset["row"].as_matrix().astype(np.uint8)
 
