@@ -39,7 +39,6 @@ class AdienceDataset(Dataset):
             return img,1
         else:
             scale = img_h/h
-    #        img = cv2.resize(img,(int(w),int(h)))
             img = scipy.misc.imresize(img, (int(w),int(h))).astype(np.float32)/255
             return img,scale
 

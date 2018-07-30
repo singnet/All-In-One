@@ -6,7 +6,7 @@ def age_margin_mse_loss(y_true,y_pred):
     return K.max(K.square(y_pred -y_true)-2.25,0)
 
 def age_loss(y_true,y_pred):
-    
+
     global LAMDA,SIGMOID
     loss1 = (1-LAMDA) * (1.0/2.0) * K.square(y_pred - y_true);
     loss2 = LAMDA *(1 - K.exp(-(K.square(y_pred - y_true)/(2* SIGMOID))))

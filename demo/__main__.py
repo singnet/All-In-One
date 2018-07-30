@@ -94,18 +94,7 @@ def webcam_demo(model,detector):
 def video_demo(model,vidoe_path,detector):
     process_video(model,video_path,detector)
 
-
-
 def main():
-    # print "loading model"
-    # model  = load_model("models/allinone.json","/home/mtk/iCog/models/freeze2.h5",["age_estimation","smile", "gender_probablity"])
-    # model.summary()
-    # print "loaded model"
-    # detector = dlib.get_frontal_face_detector()
-    # images_demo(model,"/home/mtk/iCog/test-images/",detector)
-    #
-    # webcam_demo(model,detector)
-    # video_dem(model,"/home/mtk/iCog/projects/emopy/test-videos/75Emotions.mp4",detector)
     selective_search_demo()
 
 if __name__ == "__main__":

@@ -116,7 +116,7 @@ class AllInOneNetwork(object):
         else:
             callbacks = [CustomModelCheckPoint()]
 
-        smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=True)
+        smileModel.fit_generator(self.dataset.generator(batch_size=self.batch_size),epochs = self.epochs,callbacks = callbacks,steps_per_epoch=self.steps_per_epoch,validation_data=(X_test,y_test),verbose=1)
         with open("logs/logs.txt","a+") as log_file:
             score = smileModel.evaluate(X_test,y_test)
             log_file.write(str(score))
