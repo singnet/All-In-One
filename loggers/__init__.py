@@ -69,7 +69,7 @@ class Log(object):
                 Log.print_colored(message+", at "+ file_name,bg=colors.bg.yellow)
             else:
                 Log.print_colored(message,bg=colors.bg.yellow)
-                
+
     @staticmethod
     def ERROR(message):
         if Log.ERROR_OUT:
