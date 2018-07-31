@@ -5,5 +5,4 @@ log.txt
 logs.txt
 epoch_number.json
 temp-models/*
-*.xml
-*.iml
+.idea/

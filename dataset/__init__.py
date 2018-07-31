@@ -79,6 +79,7 @@ class Dataset(object):
                 print "Failed to meet convention","test dataset does not contain file_location column"
                 return False
             return True
+
     """ Loads dataset inside given pickle file.
     Parameters
     ----------
@@ -98,13 +99,13 @@ class Dataset(object):
         dataframe = pd.read_pickle(ds_path)
         dataframe = dataframe.reset_index(drop=True)
         return dataframe
+
     """Checks if all.pkl, train.pkl and test.pkl files exists.
     Returns
     -------
     bool
         True if all the files exist. False if at least one of the files missing
     """
-
     def contain_dataset_files(self):
         if not os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
             print "Failed to meet convention","all.pkl is not inside:"+self.config.dataset_dir
@@ -116,15 +117,17 @@ class Dataset(object):
             print "Failed to meet convention","test.pkl is not inside:"+self.config.dataset_dir
             return False
         return True;
-
     @abstractmethod
     def meet_convention(self):
         raise NotImplementedError("Not implmented")
+
+    """Split the dataset into train and test sets"""
     def split_train_test(self,dataset,train_size=0.8):
         mask = np.random.rand(len(dataset)) < train_size
         train = dataset[mask]
         test = dataset[~mask]
         return train,test
+    """Split the dataset into train, test and validation sets"""
     def split_train_test_validation(self,dataframe,train_size=0.8):
         train,test_val = self.split_train_test(dataframe,train_size)
         test_mask = np.random.rand(len(test_val))< 0.5

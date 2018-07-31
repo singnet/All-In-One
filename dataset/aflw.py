@@ -13,7 +13,6 @@ class AflwDataset(Dataset):
     """
 
     def __init__(self,config):
-        # self.conn = sqlite3.connect("/home/mtk/dataset/aflw-files/aflw/data/aflw.sqlite")
         super(AflwDataset,self).__init__(config)
 
     """ method that resizes image to the same resolution
@@ -40,9 +39,8 @@ class AflwDataset(Dataset):
         else:
             scale = img_h/h
             img = cv2.resize(img,(int(w),int(h)))
-#            img = scipy.misc.imresize(img, (int(w),int(h))).astype(np.float32)/255
             return img,scale
-
+    """What is this method doing?"""
     def selective_search(self,img,min_size=(2200),max_img_size=(24,24),debug=False):
         cand_rects = []
         img,scale = self.resize_down_image(img,max_img_size)
@@ -211,11 +209,13 @@ class Rect(object):
         self.h = h
     def area(self):
         return self.w * self.h
+    """intersection of Ground truth bouinding boxes of images"""
     def intersection(self,rect):
         x_overlap = max(0, min(rect1[2], rect2[2]) - max(self.x, rect.x));
         y_overlap = max(0, min(rect1[3], rect2[3]) - max(rect1[1], rect2[1]));
         overlapArea = x_overlap * y_overlap;
         return overlapArea
+   """Union of predicted bouding boxes of faces"""
     def union(self,rect):
         assert rect1.shape == (4,) , "rect1 shape should be (4,) and it is "+str(rect1.shape)
         assert rect2.shape == (4,) , "rect2 shape should be (4,) and it is "+str(rect2.shape)
