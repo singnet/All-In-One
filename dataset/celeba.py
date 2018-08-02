@@ -127,7 +127,7 @@ class CelebAAlignedDataset(Dataset):
         df = pd.read_csv(annotation_file,sep= "\s+|\t+|\s+\t+|\t+\s+",names=headers,header=1)
         return df
     def generator(self,batch_size):
-	raise NotImplementedError("Not implmented")
+	       raise NotImplementedError("Not implmented")
     def smile_data_generator(self,batch_size=32):
         while True:
             indexes = np.arange(len(self.train_dataset))

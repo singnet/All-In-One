@@ -104,8 +104,10 @@ class AflwDataset(Dataset):
 
         else:
             raise NotImplementedError("Not implemented for labels:"+str(self.labels))
+
     def generator(self,batch_size):
         raise NotImplementedError("Not implmented!")
+        
     def detection_data_genenerator(self,batch_size):
         while True:
             indexes = np.arange(len(self.train_dataset))

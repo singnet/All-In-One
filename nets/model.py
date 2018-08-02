@@ -135,7 +135,7 @@ class AllInOneModel(object):
         model_json = self.model.to_json()
         with open(path,"w+") as json_file:
             json_file.write(model_json)
-            print "Saved model"
+            print ("Saved model")
 
     def get_layer(self,name):
         for layer in self.model.layers:

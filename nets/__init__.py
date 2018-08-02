@@ -52,12 +52,14 @@ class AllInOneNetwork(object):
             print("remaining epochs",REMAINING_EPOCHS)
         if REMAINING_EPOCHS < 0:
             REMAINING_EPOCHS =1
-        with open("logs.txt","a+") as logfile:
-            str_date = datetime.now().strftime("%d, %b, %Y %H:%M:%S")
-            logfile.write("Starting to train model\n")
-            logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
-            logfile.write(str_date+"\n")
-        return customCheckPoint
+
+        #with open("logs.txt","a+") as logfile:
+        #    str_date = datetime.now().strftime("%d, %b, %Y %H:%M:%S")
+        #    logfile.write("Starting to train model\n")
+        #    logfile.write("Dataset :"+self.preprocessor.dataset_type+"\n")
+        #    logfile.write(str_date+"\n")
+        #return customCheckPoint
+
 
     def train_imdb_wiki(self):
         if not self.dataset.dataset_loaded:
@@ -68,9 +70,9 @@ class AllInOneNetwork(object):
             for i in range(len(ageGenderModel.layers)):
                 if ageGenderModel.layers[i].name in ["age_estimation","gender_probablity","dense_4","dense_5","dense_6","dense_7"] :
                     ageGenderModel.layers[i].trainable = True
-                    print ageGenderModel.layers[i].name, "trainable == True"
+                    print (ageGenderModel.layers[i].name, "trainable == True")
                 else:
-                    print ageGenderModel.layers[i], "trainable  == False"
+                    print (ageGenderModel.layers[i], "trainable  == False")
                     ageGenderModel.layers[i].trainable = False
         ageGenderModel.compile(loss = [age_loss, keras.losses.categorical_crossentropy],loss_weights=[self.LOSS_WEIGHTS["age"],self.LOSS_WEIGHTS["gender"]],optimizer=keras.optimizers.Adam(self.learning_rate),metrics=["accuracy"])
         ageGenderModel.summary()
@@ -127,12 +129,12 @@ class AllInOneNetwork(object):
         self.model.model.save_weights("models/"+self.config.large_model_name+".h5")
         model.save_weights("models/"+self.config.small_model_name+".h5")
         print("Score:",score)
-        with open("logs/logs.txt", "a+") as log_file:
-            log_file.write("----------------------------------------\n")
-            log_file.write("large model _name:"+(self.config.large_model_name)+"\n")
-            log_file.write("small model _name:"+(self.config.small_model_name)+"\n")
-            log_file.write("Score: "+str(score))
-            log_file.write("________________________________________\n")
+        #with open("logs/logs.txt", "a+") as log_file:
+        #    log_file.write("----------------------------------------\n")
+        #    log_file.write("large model _name:"+(self.config.large_model_name)+"\n")
+        #    log_file.write("small model _name:"+(self.config.small_model_name)+"\n")
+        #    log_file.write("Score: "+str(score))
+        #    log_file.write("________________________________________\n")
 
     def train_age_network(self):
         age_model = self.model.get_model_with_labels(["age_estimation"])

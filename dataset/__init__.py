@@ -73,10 +73,10 @@ class Dataset(object):
             if not self.dataset_loaded:
                 self.load_dataset()
             if not "file_location" in self.train_dataset.columns:
-                print "Failed to meet convention","training dataset does not contain file_location column"
+                print ("Failed to meet convention","training dataset does not contain file_location column")
                 return False
             elif not "file_location" in self.test_dataset.columns:
-                print "Failed to meet convention","test dataset does not contain file_location column"
+                print ("Failed to meet convention","test dataset does not contain file_location column")
                 return False
             return True
 
@@ -108,13 +108,13 @@ class Dataset(object):
     """
     def contain_dataset_files(self):
         if not os.path.exists(os.path.join(self.config.dataset_dir,"all.pkl")):
-            print "Failed to meet convention","all.pkl is not inside:"+self.config.dataset_dir
+            print ("Failed to meet convention","all.pkl is not inside:"+self.config.dataset_dir)
             return False
         if not os.path.exists(os.path.join(self.config.dataset_dir,"train.pkl")):
-            print "Failed to meet convention","train.pkl is not inside:"+self.config.dataset_dir
+            print ("Failed to meet convention","train.pkl is not inside:"+self.config.dataset_dir)
             return False
         if not os.path.exists(os.path.join(self.config.dataset_dir,"test.pkl")):
-            print "Failed to meet convention","test.pkl is not inside:"+self.config.dataset_dir
+            print ("Failed to meet convention","test.pkl is not inside:"+self.config.dataset_dir)
             return False
         return True;
     @abstractmethod

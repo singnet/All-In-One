@@ -10,10 +10,10 @@ INPUT_SIZE = (227,227,1)
 def main():
     args = get_cmd_args()
     if not os.path.exists(args.images_path):
-        print "image path given does not exists"
+        print ("image path given does not exists")
         exit(0)
     if not args.dataset.lower() in ["wiki","imdb", "celeba","aflw", "adience"]:
-        print "currently implemented for only wiki, imdb, aflw and celeba datasets"
+        print ("currently implemented for only wiki, imdb, aflw and celeba datasets")
         exit(0)
     config = get_config(args)
     net = AllInOneNetwork(config)
