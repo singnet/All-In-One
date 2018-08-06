@@ -44,4 +44,10 @@ python -m train --dataset adience --images_path path_to_dataset --label pose --b
 python -m train --dataset adience --images_path path_to_dataset --label detection --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10
 ```
 ## To do lists
+Previous results recorded after training the model.
+* *Gender estimation(~89% accuracy)*
+* *Face detection(~90% accuracy)*
+* *Smile detection(91% accuracy)*
+* *Age prediction(4% accuaracy)*
 * *Use CASIA and MORPH dataset for further training the model on age, detection and gender labels.*
+
