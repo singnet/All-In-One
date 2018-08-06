@@ -23,22 +23,25 @@ The network architecture can be found in this [paper](https://arxiv.org/abs/1611
 ## Training
   The model can be trained with detection_probablity, kpoints_visibility, key_points, pose, smile, gender_probablity, age_estimation, face_reco for face recognition, is_young, eye_glasses, mouse_slightly_open labels by using the following commands inside the project's directory.
 
-* *`python -m train --dataset aflw --images_path path_to_dataset --label detection --batch_size 100 --steps 500 --ol detection_large1 --os detection_small1 --epochs 10`*
-
-* *`python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4  --ol detection_age_large1 --os detection_age_small1 --epochs 10`*
-
-* *`python -m train --dataset wiki --images_path path_to_dataset --label gender --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_large1 --os detection_age_gender_small1 --load_model path_to_model.json --epochs 10`*
-
-* *`python -m train --dataset celeba --images_path path_to_dataset --label smile --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_smile_large1 --os detection_age_gender_smile_small1 --load_model path_to_model.json --epochs 10`*
-
-* *`python -m train --dataset celeba --images_path path_to_dataset --label smile --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_smile_large1 --os detection_age_gender_smile_small1 --load_model path_to_model.json --epochs 10`*
-
-* *`python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10`*
-
-* *`python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10`*
-
-* *`python -m train --dataset adience --images_path path_to_dataset --label pose --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10`*
-
-* *`python -m train --dataset adience --images_path path_to_dataset --label detection --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10`*
+```
+**For training the module with detection label on aflw dataset**
+python -m train --dataset aflw --images_path path_to_dataset --label detection --batch_size 100 --steps 500 --ol detection_large1 --os detection_small1 --epochs 10<br>
+**For training the model with age label on wiki dataset**
+python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4  --ol detection_age_large1 --os detection_age_small1 --epochs 10<br>
+**For training the model with gender label on gender dataset**
+python -m train --dataset wiki --images_path path_to_dataset --label gender --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_large1 --os detection_age_gender_small1 --load_model path_to_model.json --epochs 10<br>
+**For training the model with celeba dataset with smile label**
+python -m train --dataset celeba --images_path path_to_dataset --label smile --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_smile_large1 --os detection_age_gender_smile_small1 --load_model path_to_model.json --epochs 10<br>
+**For training the model with celeba dataset with label smile**
+python -m train --dataset celeba --images_path path_to_dataset --label smile --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_smile_large1 --os detection_age_gender_smile_small1 --load_model path_to_model.json --epochs 10<br>
+**For training the model with wiki dataset on age label**
+python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10<br>
+**For training the model with adience dataset on age label**
+python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10<br>
+**For training the model with adience dataset with pose label** 
+python -m train --dataset adience --images_path path_to_dataset --label pose --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10<br>
+**For training the model with adience dataset with detection label** 
+python -m train --dataset adience --images_path path_to_dataset --label detection --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10
+```
 ## To do lists
 * *Use CASIA and MORPH dataset for further training the model on age, detection and gender labels.*
