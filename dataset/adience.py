@@ -20,7 +20,7 @@ class AdienceDataset(Dataset):
     image which have width and height equal or less than
     values specified by max_size.
         e.g
-        img = np.zeros((200,300))           
+        img = np.zeros((200,300))
         img = resize_down_image(img,(100,100))
         img.shape # (66,100)
 

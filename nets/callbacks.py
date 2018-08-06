@@ -3,8 +3,6 @@ import json
 
 from nets.loss_functions import LAMDA
 
-
-
 class LambdaUpdateCallBack(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs={}):
         global LAMDA
@@ -18,11 +16,7 @@ class CustomModelCheckPoint(keras.callbacks.Callback):
         self.last_accuracy = 0
         self.current_model_number = 0;
         self.epoch_number = 0
-    # def on_train_begin(self,epoch, logs={}):
-    #     return
 
-    # def on_train_end(self, logs={}):
-    #     return
 
     def on_epoch_begin(self,epoch, logs={}):
         return

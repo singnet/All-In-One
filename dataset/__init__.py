@@ -1,4 +1,3 @@
-
 from abc import ABCMeta
 from abc import abstractmethod
 import os
@@ -127,6 +126,7 @@ class Dataset(object):
         train = dataset[mask]
         test = dataset[~mask]
         return train,test
+        
     """Split the dataset into train, test and validation sets"""
     def split_train_test_validation(self,dataframe,train_size=0.8):
         train,test_val = self.split_train_test(dataframe,train_size)

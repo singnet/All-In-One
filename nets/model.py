@@ -26,10 +26,8 @@ class AllInOneModel(object):
         norm2 = BatchNormalization()(conv2)
         pool2 = MaxPooling2D(pool_size=(2, 2))(norm2)
         conv3 = Conv2D(384,kernel_size=(3,3),padding='same')(pool2)
-
         conv4 = Conv2D(384,kernel_size=(3,3),padding='same')(conv3)
         conv5 = Conv2D(512,kernel_size=(3,3),padding='same')(conv4)
-
 
         conv6 = Conv2D(512,kernel_size=(3,3))(conv5)
 
@@ -41,9 +39,7 @@ class AllInOneModel(object):
         dense2 = Dense(512,activation="relu")(dropout1)
         dropout2 = Dropout(0.2)(dense2)
 
-
         face_reco = Dense(10548,activation="softmax",name="face_reco")(dropout2)
-
         # branch from pool1, conv3 and conv5
         pool1_out_conv = Conv2D(256,kernel_size=(4,4),strides=4,activation="relu")(pool1)
         conv3_out_conv = Conv2D(256,kernel_size=(2,2),strides=2,activation="relu")(conv3)
@@ -82,7 +78,6 @@ class AllInOneModel(object):
         young_2 = Dense(128,activation="relu")(young_drop1)
         young_drop2 = Dropout(0.2)(young_2)
         young_3 = Dense(2,activation="softmax",name="is_young")(young_drop2)
-
         #
 
         # face detection
@@ -120,7 +115,6 @@ class AllInOneModel(object):
         mouse_slightly_open1  = Dense(512,activation="relu")(merge_1_dropout)
         mouse_slightly_open_drop = Dropout(0.2)(mouse_slightly_open1)
         mouse_slightly_open2 = Dense(2,activation="softmax",name="mouse_slightly_open")(mouse_slightly_open_drop)
-
 
         model = Model(inputs=input_layer,
                         outputs=[detection_probability2,key_point_visibility_2, key_points2,pose2,smile2,

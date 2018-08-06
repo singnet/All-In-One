@@ -13,4 +13,3 @@ class RoundLayer(Layer):
         config = {"name": self.__class__.__name__}
         base_config = super(RoundLayer, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
-    

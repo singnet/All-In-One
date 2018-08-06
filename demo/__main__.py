@@ -91,7 +91,7 @@ def process_video(model, path,detector):
 def webcam_demo(model,detector):
     process_video(model,-1,detector)
 
-def video_demo(model,vidoe_path,detector):
+def video_demo(model,video_path,detector):
     process_video(model,video_path,detector)
 
 def main():

@@ -60,7 +60,6 @@ class AllInOneNetwork(object):
         #    logfile.write(str_date+"\n")
         #return customCheckPoint
 
-
     def train_imdb_wiki(self):
         if not self.dataset.dataset_loaded:
             self.dataset.load_dataset()

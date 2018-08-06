@@ -168,7 +168,6 @@ class ImdbWikiDataset(Dataset):
 
     def calc_age(self,taken, dob):
         birth = datetime.fromordinal(max(int(dob) - 366, 1))
-
         # assume the photo was taken in the middle of the year
         if birth.month < 7:
             return taken - birth.year
