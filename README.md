@@ -21,34 +21,30 @@ Three datasets are used for training the network.
 The network architecture can be found in this [paper](https://arxiv.org/abs/1611.00851). The model is built with deep convolutional layers in keras and is found in nets/model.py.
 
 ## Training
-  The model can be trained with detection_probablity, kpoints_visibility, key_points, pose, smile, gender_probablity, age_estimation, face_reco for face recognition, is_young, eye_glasses, mouse_slightly_open labels by using the following commands inside the project's directory.
-
+  The model can be trained with age, gender,detection, visibility,pose, landmarks,identity, smile, and eye_glasses labels by using the following commands inside the project's directory. \
+The following code snippet is bash command to train the network in aflw dataset for face detection
 ```
-For training the module with detection label on aflw dataset
-python -m train --dataset aflw --images_path path_to_dataset --label detection --batch_size 100 --steps 500 --ol detection_large1 --os detection_small1 --epochs 10<br>\
-For training the model with age label on wiki dataset
-python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4  --ol detection_age_large1 --os detection_age_small1 --epochs 10<br>\
-For training the model with gender label on gender dataset
-python -m train --dataset wiki --images_path path_to_dataset --label gender --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_large1 --os detection_age_gender_small1 --load_model path_to_model.json --epochs 10<br>\
-For training the model with celeba dataset with smile label
-python -m train --dataset celeba --images_path path_to_dataset --label smile --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_smile_large1 --os detection_age_gender_smile_small1 --load_model path_to_model.json --epochs 10<br>\
-For training the model with celeba dataset with label smile
-python -m train --dataset celeba --images_path path_to_dataset --label smile --batch_size 100 --steps 500 --lr 1e-5  --ol detection_age_gender_smile_large1 --os detection_age_gender_smile_small1 --load_model path_to_model.json --epochs 10<br>\
-For training the model with wiki dataset on age label
-python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10<br>\
-For training the model with adience dataset on age label
-python -m train --dataset wiki --images_path path_to_dataset --label age --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10<br>\
-For training the model with adience dataset with pose label 
-python -m train --dataset adience --images_path path_to_dataset --label pose --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10<br>\
-For training the model with adience dataset with detection label 
-python -m train --dataset adience --images_path path_to_dataset --label detection --batch_size 100 --steps 500 --lr 1e-4 --ol detection_age_large1 --os detection_age_small --epochs 10\
+python -m train --dataset aflw --images_path /path-to-dataset-images/ \
+    --label detection --batch_size 100 --steps 500  --ol output-of-large-model --os output-of-small-model --epochs 10;
 ```
+### Options
+* *--images_path - Path to dataset images*
+* *--dataset - Type of dataset to train the model. This could be imdb, wiki, celeba,yale,ck+,aflw. The layers that are going to be trained also depends on this choice.*
+* *--label - This option specifies which for which type of classification/prediction to train the model. The choices are age, gender,detection, visibility,pose, landmarks,identity, smile, and eye_glasses.*
+* *--epochs.*
+* *--batch_size.*
+* *--resume - To start training from previous checkpoint if available.*
+* *--steps - Steps per epoch.*
+* *--ol - Output filename to save large model(model with all layers)*
+* *--os - Output filename to save small model(model with layers trained with current training)*
+* *--load_model -*
+* *--freeze - If true freezes shared layers of the model*
 ## To do lists
 #### Previous results recorded after training the model.
 * *Gender estimation(~89% accuracy)*
 * *Face detection(~90% accuracy)*
-* *Smile detection(91% accuracy)*
-* *Age prediction(4% accuaracy)*
+* *Smile detection(~91% accuracy)*
+* *Age prediction(~4% accuaracy)*
 #### Tasks remaining
 * *Use CASIA and MORPH dataset for further training the model on age, detection and gender labels.*
 * *Implement pose estimation, Landmark detection and Face recognition.* 
