@@ -39,6 +39,7 @@ python -m train --dataset aflw --images_path /path-to-dataset-images/ \
 * *--os - Output filename to save small model(model with layers trained with current training)*
 * *--load_model -*
 * *--freeze - If true freezes shared layers of the model*
+## How to run demo
 ## To do lists
 #### Previous results recorded after training the model.
 * *Gender estimation(~89% accuracy)*
