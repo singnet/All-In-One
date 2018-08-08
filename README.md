@@ -12,11 +12,13 @@ The project can be run by installing conda virtual environment with python=3.6 a
 * *`pip install opencv-python`*
 * *`pip install dlib`*
 ## How to train the model
-Three datasets are used for training the network.
+These datasets are used for training the network.
   * *[AFLW dataset](https://www.tugraz.at/institute/icg/research/team-bischof/lrs/downloads/aflw/) provides a large-scale collection of annotated face images gathered from the web, exhibiting a large variety in appearance (e.g., pose, expression, ethnicity, age, gender) as well as general imaging and environmental conditions.*
   * *[IMDB-WIKI dataset](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/) is the largest publicly available dataset of face images with gender and age labels for training.*
   * *[CelebA dataset](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) is a large-scale face attributes dataset with more than 200K celebrity images, each with 40 attribute annotations.*
   * *[Adience dataset](https://talhassner.github.io/home/projects/Adience/Adience-data.html) attempts to capture all the variations in appearance, noise, pose, lighting and more, that can be expected of images taken without careful preparation or posing.*
+  * *[Extended Cohn-Kanade dataset (CK+)](http://www.consortium.ri.cmu.edu/ckagree/), which is a public benchmark dataset for action unit and emotion recognition. The CK+ comprises a total of 593 sequences across 123 subjects. Sequences range from neutral to peak expression.*
+  * *[The Yale Face Database](http://cvc.cs.yale.edu/cvc/projects/yalefaces/yalefaces.html) (size 6.4MB) contains 165 grayscale images in GIF format of 15 individuals. There are 11 images per subject, one per different facial expression or configuration: center-light, w/glasses, happy, left-light, w/no glasses, normal, right-light, sad, sleepy, surprised, and wink.*
 
 The network architecture can be found in this [paper](https://arxiv.org/abs/1611.00851). The model is built with deep convolutional layers in keras and is found in nets/model.py.
 
